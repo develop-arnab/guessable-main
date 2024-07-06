@@ -1,0 +1,124 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
+html,
+body {
+  height: 100%;
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+}
+.ant-select-selector {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Add to your stylesheet */
+.react-calendar__tile--active {
+  border-radius: 3px !important;
+  background: #6359ec !important; /* Your desired highlight color */
+  color: white !important;
+}
+
+/* If the calendar loses focus and the date appears unselected */
+.react-calendar__tile--active:focus {
+  border-radius: 3px !important;
+  background: #6359ec !important; /* Ensure the background stays the same */
+  color: white !important;
+}
+
+/* If you want to keep the same style even if the element is not in focus */
+.react-calendar__tile--active:not(:focus) {
+  border-radius: 3px !important;
+  background: #6359ec !important;
+  color: white !important;
+}
+
+.react-calendar__month-view__weekdays {
+  text-decoration: none;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+.parent-class > input {
+  @apply focus:outline-0;
+}
+
+.PhoneInputInput {
+  background-color: black !important;
+  z-index: 0 !important;
+}
+
+.react-phone-number-input__country-select {
+  background-color: black; /* Replace #yourBackgroundColor with your desired color */
+}
+
+.PhoneInputCountrySelect {
+  background-color: black !important;
+  color: white !important;
+}
+
+.PhoneInputInput {
+  width: 90%;
+}
+
+/* Set the active color for tab text */
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #6359ec !important; /* Your desired active color */
+}
+
+.ant-tabs-ink-bar {
+  background: #6359ec !important;
+}
+
+/* .ant-progress-inner {
+  background-color: white !important;
+} */
+
+.ant-progress-outer {
+  width: 70px !important;
+}
+
+.vertical-progress-bars {
+  display: flex;
+  align-items: flex-end;
+}
+
+.progress-container {
+  text-align: center;
+  display: flex;
+  flex-direction: column-reverse; /* Arrange labels at the bottom */
+  margin-right: 8px;
+}
+
+.progress-container .progress-bar {
+  transform: rotate(-90deg);
+  margin: 0 auto; /* Center the progress bar */
+  width: 32px;
+}
+
+.progress-container .label_1 {
+  margin-bottom: 50px; /* Adjust as needed */
+  margin-left: 7px;
+  font-weight: 600;
+}
+.progress-container .label {
+  margin-top: 8px;
+  font-weight: 600;
+  margin-left: 5px; /* Adjust as needed */
+}
+
+/* If you also want to change the active tab indicator color */
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
