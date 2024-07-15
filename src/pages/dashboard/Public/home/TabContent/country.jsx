@@ -18,6 +18,8 @@ import {
   useMakeOldQuestionAttemptMutation,
 } from "../../../../../services/auth";
 import { Progress } from "antd";
+import moment from "moment";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   const [initialValues] = useState({ option: "" });
@@ -26,18 +28,36 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   const [makeAttempt, { isLoading: loadingAuth }] = useMakeAttemptMutation();
   const [makeOldAttempt, { isLoading: loadingOldAttempts }] =
     useMakeOldQuestionAttemptMutation();
-  const { data: userStreak } = useGetUserStreakQuery();
+    const [userStreak, setUserStreak] = useState(-1)
+
+
+  const { data, error,status, refetch } = useGetUserStreakQuery();
+
+ 
+
+
+console.log(userStreak);
+ if (status === "fulfilled" && userStreak === -1) {
+   setUserStreak(data?.countryStreak || 0);
+ }
+
+     const getLatestStreakFromDB = async () => {
+       const { data } = await refetch();
+       setUserStreak(data?.countryStreak);
+     };
+ 
+
   const [currentAttempt, setCurrentAttempt] = useState({
     quesID: question?.id,
     attemptValue: 0,
     isCorrect: false,
   });
-
+  const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
   const [questionClues, setQuestionClues] = useState([]);
   const [option, setOption] = useState([]);
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [clueMainAfter, setClueMainAfter] = useState("");
-  const [streak, setStreak] = useState(0);
+  const [streak, setStreak] = useState(localStorage.getItem('countryStreak') || 0);
   const [questionStats, setQuestionStats] = useState([0, 0, 0, 0]);
 
   const { data: stats, refetch: refetchStats } = useGetQuestionStateQuery({
@@ -48,10 +68,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
 
   useEffect(() => {
     if (stats?.response) {
-      const updatedStats = Object.values(stats.response).map((value) =>
-        Math.round(parseFloat(value.replace("%", ""))),
-      );
-      setQuestionStats(updatedStats);
+      // const updatedStats = Object.values(stats.response).map((value) =>
+      //   Math.round(parseFloat(value.replace("%", ""))),
+      // );
+      // setQuestionStats(updatedStats);
     }
   }, [stats]);
 
@@ -158,7 +178,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                       `clueMainAfter-${question?.id}`,
                       result?.data?.clueMainAfter,
                     );
-                    setStreak(calculateStreak() + +result.data?.isCorrect);
+                    setStreak(calculateStreak("reset"));
                   }
                 } else {
                   const updatedArray = [
@@ -184,7 +204,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak() + +result.data?.isCorrect);
+                  setStreak(calculateStreak("increament"));
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -279,7 +299,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   `clueMainAfter-${question?.id}`,
                   result?.data?.clueMainAfter,
                 );
-                setStreak(calculateStreak() + +result.data?.isCorrect);
+                setStreak(calculateStreak("increament"));
               }
               const answers = JSON.parse(
                 localStorage.getItem(`answers-${question?.id}`),
@@ -317,7 +337,9 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
         if (!token) {
           try {
             let attemptFound = false;
+            console.log("ATTEMPTS FOUND ", attempts);
             for (const attempt of attempts) {
+              console.log("Inside for loop ", attempt);
               if (attempt.quesID === question?.id) {
                 attemptFound = true;
 
@@ -369,7 +391,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                         JSON.stringify(previousQuesClue),
                       );
                     }
-
+                    
+                    //Perfect
                     if (attempt.attemptValue >= 4) {
                       setCorrectAnswer(result?.data?.answer);
                       console.log(
@@ -385,7 +408,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                         `clueMainAfter-${question?.id}`,
                         result?.data?.clueMainAfter,
                       );
-                      setStreak(calculateStreak() + +result.data?.isCorrect);
+                       localStorage.setItem(
+                         "lastDatePlayed",question?.date
+                       );
+                      setStreak(calculateStreak("reset"));
                     }
                   } else {
                     const updatedArray = [
@@ -411,7 +437,9 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                       `clueMainAfter-${question?.id}`,
                       result?.data?.clueMainAfter,
                     );
-                    setStreak(calculateStreak() + +result.data?.isCorrect);
+                    localStorage.setItem("lastDatePlayed", question?.date);
+                    console.log("CALCULATING FROM HERE ", result.data?.isCorrect);
+                    setStreak(calculateStreak("increament"));
                   }
 
                   const answers = JSON.parse(
@@ -458,7 +486,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               });
 
               newAttemptObj.attemptValue = 1;
-
+              console.log("attempt unauth ", result)
               if (result?.data) {
                 console.log("result?.data; ", result?.data);
                 if (result?.data?.isCorrect === false) {
@@ -506,7 +534,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak() + +result.data?.isCorrect);
+                  localStorage.setItem("lastDatePlayed", question?.date);
+                  setStreak(calculateStreak("increament"));
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -539,8 +568,9 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
             console.log("error", e);
           }
         } else {
+   
           try {
-            console.log(" if else if else - token");
+            
             const result = await makeAttempt({
               attemptDataId: question?.attemptsInfo?.id,
               chooseValue: values.option,
@@ -574,9 +604,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                 return el.quesID === question?.id;
               });
               if (cloneAttempt === null || currentAttempt.length === 0) {
-                console.log(
-                  "if(cloneAttempt  null || currentAttempt.length 0)",
-                );
+               
                 const newAttempt = {
                   quesID: question?.id,
                   attemptValue: 1,
@@ -637,7 +665,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak() + +result.data?.isCorrect);
+                  getLatestStreakFromDB();
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -659,9 +687,11 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   "countryAttempts",
                   JSON.stringify(attempts),
                 );
+                getLatestStreakFromDB();
                 refetchStats();
                 resetForm();
               } else {
+                
                 const updatedAttempts = cloneAttempt.map((attempt) => {
                   if (attempt && attempt.quesID === question?.id) {
                     setCurrentAttempt({
@@ -725,7 +755,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                       `clueMainAfter-${question?.id}`,
                       result?.data?.clueMainAfter,
                     );
-                    setStreak(calculateStreak() + +result.data?.isCorrect);
+                    // setStreak(calculateStreak("increament"));
                   }
                 } else {
                   const updatedArray = [
@@ -751,8 +781,9 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak() + +result.data?.isCorrect);
+                  setStreak(calculateStreak("increament"));
                 }
+                getLatestStreakFromDB();
                 refetchStats();
                 resetForm();
               }
@@ -813,7 +844,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
         isCorrect: false,
       });
     }
-    setStreak(calculateStreak());
+    // setStreak(calculateStreak());
     refetchStats();
   }, [handleSubmit, question?.id]);
 
@@ -824,54 +855,98 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
     });
   };
 
-  function calculateStreak() {
-    const token = localStorage.getItem("token");
+useEffect(() => {
+  console.log("USER Streak FOUND ", userStreak);
+const currentDateFoundInQuestion = question?.date;
+
+const lastDatePlayedRetrieved =
+  localStorage.getItem("lastDatePlayed");
+
+if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isBefore(currentDateFoundInQuestion))){
+  setStreak(0)
+  localStorage.setItem("countryStreak", 0);
+}
+}, [user])
+
+
+  let token = localStorage.getItem("token");
+  function calculateStreak(gameState) {
+      
     if (token) {
       return userStreak?.countryStreak === null ? 0 : userStreak?.countryStreak;
     } else {
-      const attemptsKey = `countryAttempts`;
-      const attempts = JSON.parse(localStorage.getItem(attemptsKey)) || [];
 
-      attempts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-      let streak = 0;
-      let previousDay = null;
+   
+      // const attemptsKey = `countryAttempts`;
+      // const attempts = JSON.parse(localStorage.getItem(attemptsKey)) || [];
 
-      for (const attempt of attempts) {
-        const attemptDate = new Date(attempt.createdAt);
-        const attemptDay = new Date(
-          attemptDate.getFullYear(),
-          attemptDate.getMonth(),
-          attemptDate.getDate(),
-        );
+      // attempts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        if (previousDay !== null) {
-          const dayDiff = (previousDay - attemptDay) / (1000 * 60 * 60 * 24);
+      // let streak = 0;
+      // let previousDay = null;
 
-          if (dayDiff > 1) break;
-          if (dayDiff === 0) continue;
-        }
+      // for (const attempt of attempts) {
+      //   const attemptDate = new Date(attempt.createdAt);
+      //   const attemptDay = new Date(
+      //     attemptDate.getFullYear(),
+      //     attemptDate.getMonth(),
+      //     attemptDate.getDate(),
+      //   );
 
-        const today = new Date();
-        const todayDate = new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate(),
-        );
-        if (streak === 0) {
-          const dayDiffFromToday =
-            (todayDate - attemptDay) / (1000 * 60 * 60 * 24);
-          if (dayDiffFromToday > 1) continue;
-        }
+      //   if (previousDay !== null) {
+      //     const dayDiff = (previousDay - attemptDay) / (1000 * 60 * 60 * 24);
 
-        if (attempt.isCorrect) {
+      //     if (dayDiff > 1) break;
+      //     if (dayDiff === 0) continue;
+      //   }
+
+      //   // const today = new Date();
+      //   const today = new Date("2024-07-12T00:00:00.000Z");
+      //   console.log(today)
+      //   const todayDate = new Date(
+      //     today.getFullYear(),
+      //     today.getMonth(),
+      //     today.getDate(),
+      //   );
+      //   if (streak === 0) {
+      //     const dayDiffFromToday =
+      //       (todayDate - attemptDay) / (1000 * 60 * 60 * 24);
+      //     if (dayDiffFromToday > 1) continue;
+      //   }
+      //   console.log("Calculated Attempts : ", attempt, "streak : ", streak);
+      //   if (attempt.isCorrect) {
+      //     console.log("Correct Attempt : ", attempt, "streak : ", streak);
+      //     streak++;
+      //     previousDay = attemptDay;
+      //   } else {
+      //     break;
+      //   }
+      // }
+   const currentDateFoundInQuestion = question?.date;
+ 
+      const lastDatePlayedRetrieved =
+        localStorage.getItem("lastDatePlayed") || currentDateFoundInQuestion;
+   console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion);
+
+      let streak = localStorage.getItem("countryStreak") || 0;
+
+      console.log("Ran", gameState)
+      
+      if(moment(currentDateFoundInQuestion).isSame(moment(lastDatePlayedRetrieved))) {
+        if (gameState === "reset"){
+          streak = 0;
+        } 
+        else if(gameState === "increament") {
           streak++;
-          previousDay = attemptDay;
-        } else {
-          break;
         }
       }
-      localStorage.setItem("countryStreak", JSON.stringify(streak));
+           console.log(
+             lastDatePlayedRetrieved,
+             currentDateFoundInQuestion,
+             streak
+           );
+      localStorage.setItem("countryStreak", streak);
       return streak;
     }
   }
@@ -887,7 +962,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   <FaFire />
                 </div>
                 <div className="text-[20px] font-[700] font-poppins">
-                  <span>{streak}</span> {streak !== 1 ? "Days" : "Day"} Streak
+                
+                  <span>{token ? (userStreak > 0 ? userStreak : 0) : streak}</span> {token ? (userStreak > 1 ? "Days" : "Day") : streak !== 1 ? "Days" : "Day"} Streak
                 </div>
               </div>
             </div>

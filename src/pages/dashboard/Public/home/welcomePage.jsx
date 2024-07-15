@@ -25,7 +25,9 @@ const Home = () => {
   };
 
   useEffect(() => {
+    console.log("AUTH ONE TIME", isAuthenticated);
     const authenticateUser = async () => {
+      console.log("AUTH IN TWO ", isAuthenticated);
       if (isAuthenticated) {
         const userData = {
           email: user?.email,
@@ -54,15 +56,15 @@ const Home = () => {
           .catch((error) => {
             console.error("Login failed:", error);
           });
-        const movieAttempts = JSON.parse(localStorage.getItem("movieAttempts"));
+        // const movieAttempts = JSON.parse(localStorage.getItem("movieAttempts"));
         const countryAttempts = JSON.parse(
           localStorage.getItem("countryAttempts"),
         );
-        const movieStreak = JSON.parse(localStorage.getItem("movieStreak"));
+        // const movieStreak = JSON.parse(localStorage.getItem("movieStreak"));
         const countryStreak = JSON.parse(localStorage.getItem("countryStreak"));
-
+        console.log("AUTH IN THREE ", isAuthenticated);
         const unAuthData = {
-          attemptDataArr: [...movieAttempts, ...countryAttempts],
+          attemptDataArr: [...countryAttempts],
           userInfo: {
             email: user?.email,
             name: user?.name,
@@ -81,11 +83,12 @@ const Home = () => {
           },
           streaks: {
             countryStreak: countryStreak || 0,
-            movieStreak: movieStreak || 0,
+            // movieStreak: movieStreak || 0,
           },
           signUpType: "oauth",
           timezone: getUTCTime(),
         };
+        console.log("unAuthData", unAuthData)
         signupWithGameData(unAuthData)
           .unwrap()
           .then((payload) => {

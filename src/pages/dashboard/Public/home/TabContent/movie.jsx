@@ -50,14 +50,14 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   const { data: stats, refetch: refetchStats } = useGetQuestionStateQuery({
     quesId: question?.id,
   });
-  useEffect(() => {
-    if (stats?.response) {
-      const updatedStats = Object.values(stats.response).map((value) =>
-        Math.round(parseFloat(value.replace("%", ""))),
-      );
-      setQuestionStats(updatedStats);
-    }
-  }, [stats]);
+  // useEffect(() => {
+  //   if (stats?.response) {
+  //     const updatedStats = Object.values(stats.response).map((value) =>
+  //       Math.round(parseFloat(value.replace("%", ""))),
+  //     );
+  //     setQuestionStats(updatedStats);
+  //   }
+  // }, [stats]);
   const { data: allMovies } = useGetAllMoviesQuery();
 
   useEffect(() => {
