@@ -20,8 +20,13 @@ import {
 import { Progress } from "antd";
 import moment from "moment";
 import { useAuth0 } from "@auth0/auth0-react";
+import ConfettiExplosion from 'react-confetti-explosion';
+import Lottie from "react-lottie";
+import fire from "../../../../../../public/assets/Fire.json";
+import lose from "../../../../../../public/assets/lose.json";
 
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
+  const [isExploding, setIsExploding] = useState(false);
   const [initialValues] = useState({ option: "" });
   const [makeAttemptForUnregisteredUser, { isLoading: loadingUnAth }] =
     useMakeAttemptForUnregisteredUserMutation();
@@ -59,7 +64,7 @@ console.log(userStreak);
   const [clueMainAfter, setClueMainAfter] = useState("");
   const [streak, setStreak] = useState(localStorage.getItem('countryStreak') || 0);
   const [questionStats, setQuestionStats] = useState([0, 0, 0, 0]);
-
+  const [lostStreak, setLostStreak] = useState(false)
   const { data: stats, refetch: refetchStats } = useGetQuestionStateQuery({
     quesId: question?.id,
   });
@@ -440,6 +445,7 @@ console.log(userStreak);
                     localStorage.setItem("lastDatePlayed", question?.date);
                     console.log("CALCULATING FROM HERE ", result.data?.isCorrect);
                     setStreak(calculateStreak("increament"));
+                    setIsExploding(true);
                   }
 
                   const answers = JSON.parse(
@@ -453,12 +459,12 @@ console.log(userStreak);
                     `answers-${question?.id}`,
                     JSON.stringify(newAnswers),
                   );
-                  Notification(
-                    result.data?.isCorrect
-                      ? "Your guess is correct!"
-                      : "Your guess is incorrect!",
-                    result.data?.isCorrect ? "success" : "error",
-                  );
+                  // Notification(
+                  //   result.data?.isCorrect
+                  //     ? "Your guess is correct!"
+                  //     : "Your guess is incorrect!",
+                  //   result.data?.isCorrect ? "success" : "error",
+                  // );
                   refetchStats();
                   resetForm();
 
@@ -536,6 +542,7 @@ console.log(userStreak);
                   );
                   localStorage.setItem("lastDatePlayed", question?.date);
                   setStreak(calculateStreak("increament"));
+                  setIsExploding(true);
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -549,12 +556,12 @@ console.log(userStreak);
                   `answers-${question?.id}`,
                   JSON.stringify(newAnswers),
                 );
-                Notification(
-                  result.data?.isCorrect
-                    ? "Your guess is correct!"
-                    : "Your guess is incorrect!",
-                  result.data?.isCorrect ? "success" : "error",
-                );
+                // Notification(
+                //   result.data?.isCorrect
+                //     ? "Your guess is correct!"
+                //     : "Your guess is incorrect!",
+                //   result.data?.isCorrect ? "success" : "error",
+                // );
                 newAttemptObj.isCorrect = result.data?.isCorrect;
                 attempts.push(newAttemptObj);
                 setCurrentAttempt(newAttemptObj);
@@ -666,6 +673,7 @@ console.log(userStreak);
                     result?.data?.clueMainAfter,
                   );
                   getLatestStreakFromDB();
+                  setIsExploding(true);
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -782,6 +790,7 @@ console.log(userStreak);
                     result?.data?.clueMainAfter,
                   );
                   setStreak(calculateStreak("increament"));
+                  setIsExploding(true);
                 }
                 getLatestStreakFromDB();
                 refetchStats();
@@ -936,9 +945,11 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
       if(moment(currentDateFoundInQuestion).isSame(moment(lastDatePlayedRetrieved))) {
         if (gameState === "reset"){
           streak = 0;
+          setLostStreak(true)
         } 
         else if(gameState === "increament") {
           streak++;
+          setIsExploding(true)
         }
       }
            console.log(
@@ -950,20 +961,108 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
       return streak;
     }
   }
+   const defaultOptions = {
+     loop: true,
+     autoplay: true,
+     animationData: fire,
+     rendererSettings: {
+       preserveAspectRatio: "xMidYMid slice"
+     }
+   };
 
+      const loseOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: lose,
+        rendererSettings: {
+          preserveAspectRatio: "xMidYMid slice"
+        }
+      };
   return (
     <>
+      {isExploding && (
+        <div
+          style={{
+            display: "flex",
+            translate: "50%",
+            position: "absolute",
+            left: "50%"
+          }}
+        >
+          <ConfettiExplosion duration={6000} width={1000} />
+        </div>
+      )}
+
       {!isLoading ? (
         question ? (
           <div className="bg-white p-2 rounded-md text-gray3">
             <div className="flex items-center justify-center font-poppins mt-4">
-              <div className="flex items-center ">
-                <div className="text-orange1 text-[20px] pr-2">
-                  <FaFire />
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
+                <div
+                  className="text-orange1"
+                  style={{
+                    pointerEvents: "none"
+                  }}
+                >
+                  {!isExploding && <FaFire fontSize={"20px"} />}
                 </div>
+
+                <div
+                  style={{
+                    pointerEvents: "none",
+                    margin: "0px 5px 5px 0px"
+                  }}
+                >
+                  {isExploding && (
+                    <Lottie
+                      options={defaultOptions}
+                      height={25}
+                      width={25}
+                      isStopped={false}
+                      // isPaused={false}
+                    />
+                  )}
+                </div>
+
+                {/* <div
+                  style={{
+                    pointerEvents: "none",
+                    margin: "0px 5px 5px 0px"
+                  }}
+                >
+                  {
+                  lostStreak ||
+                    !userStreak && 
+                      
+                      <Lottie
+                        options={loseOptions}
+                        height={25}
+                        width={25}
+                        isStopped={false}
+                        // isPaused={false}
+                      />
+                    }
+                </div> */}
+
                 <div className="text-[20px] font-[700] font-poppins">
-                
-                  <span>{token ? (userStreak > 0 ? userStreak : 0) : streak}</span> {token ? (userStreak > 1 ? "Days" : "Day") : streak !== 1 ? "Days" : "Day"} Streak
+                  <span>
+                    {token ? (userStreak > 0 ? userStreak : 0) : streak}
+                  </span>{" "}
+                  {token
+                    ? userStreak > 1
+                      ? "Days"
+                      : "Day"
+                    : streak !== 1
+                    ? "Days"
+                    : "Day"}{" "}
+                  Streak
                 </div>
               </div>
             </div>
@@ -1096,6 +1195,9 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
             {currentAttempt?.isCorrect || currentAttempt?.attemptValue >= 4 ? (
               <div className="mt-[50px] text-center">
                 <div className="text-[15px] font-poppins  font-light">
+                  {
+                    // isExploding &&
+                  }
                   {currentAttempt?.isCorrect
                     ? "You Got It!"
                     : "The Answer Was:"}
@@ -1191,10 +1293,10 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
                             currentAttempt?.attemptValue === 1
                               ? "attempt"
                               : "attempts"
-                          }. Check it out at`,
+                          }. Check it out at`
                         )
                       : handleCopyText(
-                          "Today's Country Guesser question stumped me! Check it out at",
+                          "Today's Country Guesser question stumped me! Check it out at"
                         )
                   }
                   className={`bg-purple text-white w-[80px] p-2 rounded-[3px] mt-[15px] font-poppins  `}

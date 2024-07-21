@@ -18,25 +18,52 @@ import {
   useMakeOldQuestionAttemptMutation,
 } from "../../../../../services/auth";
 import { Progress } from "antd";
+import ConfettiExplosion from "react-confetti-explosion";
+import Lottie from "react-lottie";
+import fire from "../../../../../../public/assets/Fire.json";
+import lose from "../../../../../../public/assets/lose.json";
+import moment from "moment";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   const [initialValues] = useState({ option: "" });
-
+  const [isExploding, setIsExploding] = useState(false);
   const [makeAttemptForUnregisteredUser, { isLoading: loadingUnAth }] =
     useMakeAttemptForUnregisteredUserMutation();
   const [makeAttempt, { isLoading: loadingAuth }] = useMakeAttemptMutation();
   const [makeOldAttempt, { isLoading: loadingOldAttempts }] =
     useMakeOldQuestionAttemptMutation();
-  const { data: userStreak } = useGetUserStreakQuery();
+  
+  const [userStreak, setUserStreak] = useState(-1);
+  const { data, error, status, refetch } = useGetUserStreakQuery();
+
+  
+  console.log(userStreak);
+  if (status === "fulfilled" && userStreak === -1) {
+  setUserStreak(data?.movieStreak || 0);
+  }
+  const getLatestStreakFromDB = async () => {
+  const { data } = await refetch();
+  setUserStreak(data?.movieStreak);
+  };
+
+ 
+
   const [currentAttempt, setCurrentAttempt] = useState({
     quesID: question?.id,
     attemptValue: 0,
     isCorrect: false,
   });
+  
+  const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
   const [questionClues, setQuestionClues] = useState([]);
+  const [option, setOption] = useState([]);
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [clueMainAfter, setClueMainAfter] = useState("");
-  const [streak, setStreak] = useState(0);
+  const [streak, setStreak] = useState(
+    localStorage.getItem("movieStreak") || 0
+  );
+  
   const [allAnswers, setAllAnswers] = useState(
     (Array.isArray(
       JSON.parse(localStorage.getItem(`answers-${question?.id}`)),
@@ -44,8 +71,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
       JSON.parse(localStorage.getItem(`answers-${question?.id}`))) ||
       [],
   );
-
-  const [option, setOption] = useState([]);
+  const [lostStreak, setLostStreak] = useState(false);
   const [questionStats, setQuestionStats] = useState([0, 0, 0, 0]);
   const { data: stats, refetch: refetchStats } = useGetQuestionStateQuery({
     quesId: question?.id,
@@ -150,7 +176,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                       `clueMainAfter-${question?.id}`,
                       result?.data?.clueMainAfter,
                     );
-                    setStreak(calculateStreak() + +result.data?.isCorrect);
+                    // setStreak(calculateStreak() + +result.data?.isCorrect);
+                    setStreak(calculateStreak("reset"));
                   }
                 } else {
                   const updatedArray = [
@@ -173,7 +200,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak() + +result.data?.isCorrect);
+                  // setStreak(calculateStreak() + +result.data?.isCorrect);
+                  setStreak(calculateStreak("increament"));
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -196,6 +224,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                 refetchStats();
 
                 attempt.isCorrect = result.data?.isCorrect;
+                refetchStats();
                 setCurrentAttempt({
                   ...attempt,
                   attemptValue: attempt.attemptValue,
@@ -255,7 +284,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   `clueMainAfter-${question?.id}`,
                   result?.data?.clueMainAfter,
                 );
-                setStreak(calculateStreak() + +result.data?.isCorrect);
+                // setStreak(calculateStreak() + +result.data?.isCorrect);
+                setStreak(calculateStreak("increament"));
               }
               const answers = JSON.parse(
                 localStorage.getItem(`answers-${question?.id}`),
@@ -363,7 +393,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                         `clueMainAfter-${question?.id}`,
                         result?.data?.clueMainAfter,
                       );
-                      setStreak(calculateStreak() + +result.data?.isCorrect);
+                      // setStreak(calculateStreak() + +result.data?.isCorrect);
+                      setStreak(calculateStreak("reset"));
                     }
                   } else {
                     console.log("else result < 4", result);
@@ -387,7 +418,9 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                       `clueMainAfter-${question?.id}`,
                       result?.data?.clueMainAfter,
                     );
-                    setStreak(calculateStreak() + +result.data?.isCorrect);
+                    // setStreak(calculateStreak() + +result.data?.isCorrect);
+                     setStreak(calculateStreak("increament"));
+                     setIsExploding(true);
                   }
                   const answers = JSON.parse(
                     localStorage.getItem(`answers-${question?.id}`),
@@ -400,12 +433,12 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `answers-${question?.id}`,
                     JSON.stringify(newAnswers),
                   );
-                  Notification(
-                    result.data?.isCorrect
-                      ? "Your guess is correct!"
-                      : "Your guess is incorrect!",
-                    result.data?.isCorrect ? "success" : "error",
-                  );
+                  // Notification(
+                  //   result.data?.isCorrect
+                  //     ? "Your guess is correct!"
+                  //     : "Your guess is incorrect!",
+                  //   result.data?.isCorrect ? "success" : "error",
+                  // );
                   resetForm();
                   refetchStats();
 
@@ -474,7 +507,9 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak() + +result.data?.isCorrect);
+                  // setStreak(calculateStreak() + +result.data?.isCorrect);
+                  setStreak(calculateStreak("increament"));
+                  setIsExploding(true);
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -487,12 +522,12 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   `answers-${question?.id}`,
                   JSON.stringify(newAnswers),
                 );
-                Notification(
-                  result.data?.isCorrect
-                    ? "Your guess is correct!"
-                    : "Your guess is incorrect!",
-                  result.data?.isCorrect ? "success" : "error",
-                );
+                // Notification(
+                //   result.data?.isCorrect
+                //     ? "Your guess is correct!"
+                //     : "Your guess is incorrect!",
+                //   result.data?.isCorrect ? "success" : "error",
+                // );
                 newAttemptObj.isCorrect = result.data?.isCorrect;
                 attempts.push(newAttemptObj);
                 setCurrentAttempt(newAttemptObj);
@@ -533,10 +568,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                 result.data?.isCorrect ? "success" : "error",
               );
 
-              const countryAttempt =
+              const movieAttempt =
                 JSON.parse(localStorage.getItem("movieAttempts")) || [];
 
-              const cloneAttempt = [...countryAttempt];
+              const cloneAttempt = [...movieAttempt];
               const currentAttempt = cloneAttempt.filter((el) => {
                 return el.quesID === question?.id;
               });
@@ -593,7 +628,9 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak() + +result.data?.isCorrect);
+                  // setStreak(calculateStreak() + +result.data?.isCorrect);
+                  getLatestStreakFromDB();
+                  setIsExploding(true);
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -612,7 +649,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                 attempts.push(newAttempt);
                 setCurrentAttempt(newAttempt);
                 localStorage.setItem("movieAttempts", JSON.stringify(attempts));
-
+                getLatestStreakFromDB();    
                 resetForm();
                 refetchStats();
               } else {
@@ -678,7 +715,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                       `clueMainAfter-${question?.id}`,
                       result?.data?.clueMainAfter,
                     );
-                    setStreak(calculateStreak() + +result.data?.isCorrect);
+                    // setStreak(calculateStreak() + +result.data?.isCorrect);
                   }
                 } else {
                   const updatedArray = [
@@ -701,9 +738,12 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak() + +result.data?.isCorrect);
+                  // setStreak(calculateStreak() + +result.data?.isCorrect);
+                  
+                  setStreak(calculateStreak("increament"));
+                  setIsExploding(true);
                 }
-
+                getLatestStreakFromDB();
                 resetForm();
                 refetchStats();
               }
@@ -767,7 +807,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
         isCorrect: false,
       });
     }
-    setStreak(calculateStreak());
+    // setStreak(calculateStreak());
+    refetchStats();
   }, [handleSubmit, question?.id]);
 
   const handleCopyText = (text) => {
@@ -776,71 +817,164 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
       Notification("You have Coppied text successfully!");
     });
   };
-
-  function calculateStreak() {
+  let token = localStorage.getItem("token");
+  function calculateStreak(gameState) {
     const token = localStorage.getItem("token");
     if (token) {
       return userStreak?.movieStreak === null ? 0 : userStreak?.movieStreak;
     } else {
-      const attemptsKey = `movieAttempts`;
-      const attempts = JSON.parse(localStorage.getItem(attemptsKey)) || [];
+      const currentDateFoundInQuestion = question?.date;
+      const lastDatePlayedRetrieved =
+        localStorage.getItem("lastDatePlayed") || currentDateFoundInQuestion;
+      console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion);
+      let streak = localStorage.getItem("movieStreak") || 0;
+      console.log("Ran", gameState);
 
-      attempts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      let streak = 0;
-      let previousDay = null;
-
-      for (const attempt of attempts) {
-        const attemptDate = new Date(attempt.createdAt);
-        const attemptDay = new Date(
-          attemptDate.getFullYear(),
-          attemptDate.getMonth(),
-          attemptDate.getDate(),
-        );
-
-        if (previousDay !== null) {
-          const dayDiff = (previousDay - attemptDay) / (1000 * 60 * 60 * 24);
-
-          if (dayDiff > 1) break;
-          if (dayDiff === 0) continue;
-        }
-
-        const today = new Date();
-        const todayDate = new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate(),
-        );
-        if (streak === 0) {
-          const dayDiffFromToday =
-            (todayDate - attemptDay) / (1000 * 60 * 60 * 24);
-          if (dayDiffFromToday > 1) continue;
-        }
-
-        if (attempt.isCorrect) {
+      if (
+        moment(currentDateFoundInQuestion).isSame(
+          moment(lastDatePlayedRetrieved)
+        )
+      ) {
+        if (gameState === "reset") {
+          streak = 0;
+          setLostStreak(true);
+        } else if (gameState === "increament") {
           streak++;
-          previousDay = attemptDay;
-        } else {
-          break;
+          setIsExploding(true);
         }
       }
-      localStorage.setItem("movieStreak", JSON.stringify(streak));
+      console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion, streak);
+      localStorage.setItem("movieStreak", streak);
       return streak;
     }
-  }
+    // const attemptsKey = `movieAttempts`;
+    // const attempts = JSON.parse(localStorage.getItem(attemptsKey)) || [];
 
+    // attempts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // let streak = 0;
+    // let previousDay = null;
+
+    // for (const attempt of attempts) {
+    //   const attemptDate = new Date(attempt.createdAt);
+    //   const attemptDay = new Date(
+    //     attemptDate.getFullYear(),
+    //     attemptDate.getMonth(),
+    //     attemptDate.getDate(),
+    //   );
+
+    //   if (previousDay !== null) {
+    //     const dayDiff = (previousDay - attemptDay) / (1000 * 60 * 60 * 24);
+
+    //     if (dayDiff > 1) break;
+    //     if (dayDiff === 0) continue;
+    //   }
+
+    //   const today = new Date();
+    //   const todayDate = new Date(
+    //     today.getFullYear(),
+    //     today.getMonth(),
+    //     today.getDate(),
+    //   );
+    //   if (streak === 0) {
+    //     const dayDiffFromToday =
+    //       (todayDate - attemptDay) / (1000 * 60 * 60 * 24);
+    //     if (dayDiffFromToday > 1) continue;
+    //   }
+
+    //   if (attempt.isCorrect) {
+    //     streak++;
+    //     previousDay = attemptDay;
+    //   } else {
+    //     break;
+    //   }
+    // }
+    // localStorage.setItem("movieStreak", JSON.stringify(streak));
+    // return streak;
+    // }
+  }
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: fire,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice"
+    }
+  };
+
+  const loseOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: lose,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice"
+    }
+  };
   return (
     <>
+      {isExploding && (
+        <div
+          style={{
+            display: "flex",
+            translate: "50%",
+            position: "absolute",
+            left: "50%"
+          }}
+        >
+          <ConfettiExplosion duration={6000} width={1000} />
+        </div>
+      )}
       {!isLoading ? (
         question ? (
           <div className="bg-white p-2 rounded-md text-gray3">
             <div className="flex items-center justify-center font-poppins mt-4">
-              <div className="flex items-center ">
-                <div className="text-orange1 text-[20px] pr-2">
-                  <FaFire />
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
+                <div
+                  className="text-orange1"
+                  style={{
+                    pointerEvents: "none"
+                  }}
+                >
+                  {!isExploding && <FaFire fontSize={"20px"} />}
                 </div>
+
+                <div
+                  style={{
+                    pointerEvents: "none",
+                    margin: "0px 5px 5px 0px"
+                  }}
+                >
+                  {isExploding && (
+                    <Lottie
+                      options={defaultOptions}
+                      height={25}
+                      width={25}
+                      isStopped={false}
+                      // isPaused={false}
+                    />
+                  )}
+                </div>
+
                 <div className="text-[20px] font-[700] font-poppins">
-                  <span>{streak}</span> {streak !== 1 ? "Days" : "Day"} Streak
+                  <span>
+                    {" "}
+                    {token ? (userStreak > 0 ? userStreak : 0) : streak}
+                  </span>{" "}
+                  {token
+                    ? userStreak > 1
+                      ? "Days"
+                      : "Day"
+                    : streak !== 1
+                    ? "Days"
+                    : "Day"}{" "}
+                  Streak
                 </div>
               </div>
             </div>
@@ -1060,10 +1194,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                             currentAttempt?.attemptValue === 1
                               ? "attempt"
                               : "attempts"
-                          }. Check it out at`,
+                          }. Check it out at`
                         )
                       : handleCopyText(
-                          `Today's Movie Guesser question stumped me! Check it out at`,
+                          `Today's Movie Guesser question stumped me! Check it out at`
                         )
                   }
                   className={`bg-purple text-white w-[80px] p-2 rounded-[3px] mt-[15px] font-poppins  `}

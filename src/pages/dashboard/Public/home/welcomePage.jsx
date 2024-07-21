@@ -4,11 +4,11 @@ import Header from "../../../../layout/header";
 import welcomeImg from "../../../../assets/welcome.png";
 import Button from "../../../../components/Button";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
   useSignIn0AuthMutation,
-  useSignupWithGameDataMutation,
+  useSignupWithGameDataMutation
 } from "../../../../services/auth";
 import Loader from "../../../../components/Loader";
 import { Notification } from "../../../../components/ToastNotification";
@@ -23,10 +23,11 @@ const Home = () => {
   const handleSubmit = () => {
     navigate("/countries");
   };
-
+  // const [called , setCalled] = useState(false)
   useEffect(() => {
-    console.log("AUTH ONE TIME", isAuthenticated);
+    let ignore = false;
     const authenticateUser = async () => {
+      if (ignore) return;
       console.log("AUTH IN TWO ", isAuthenticated);
       if (isAuthenticated) {
         const userData = {
@@ -43,67 +44,104 @@ const Home = () => {
             nickname: user?.nickname,
             picture: user?.picture,
             sub: user?.sub,
-            updated_at: user?.updated_at,
-          },
+            updated_at: user?.updated_at
+          }
         };
-        SignInAuth0(userData)
-          .unwrap()
-          .then((payload) => {
-            Notification("Login successful!", "success");
-            localStorage.setItem("token", payload?.token);
-            localStorage?.setItem("user", JSON.stringify(payload?.user));
-          })
-          .catch((error) => {
-            console.error("Login failed:", error);
-          });
-        // const movieAttempts = JSON.parse(localStorage.getItem("movieAttempts"));
-        const countryAttempts = JSON.parse(
-          localStorage.getItem("countryAttempts"),
-        );
-        // const movieStreak = JSON.parse(localStorage.getItem("movieStreak"));
-        const countryStreak = JSON.parse(localStorage.getItem("countryStreak"));
-        console.log("AUTH IN THREE ", isAuthenticated);
-        const unAuthData = {
-          attemptDataArr: [...countryAttempts],
-          userInfo: {
-            email: user?.email,
-            name: user?.name,
-            oAuthId: user?.sub,
-            oAuthProvider: "google",
-            additionalData: {
-              email_verified: user?.email_verified,
-              family_name: user?.family_name,
-              given_name: user?.given_name,
-              locale: user?.locale,
-              nickname: user?.nickname,
-              picture: user?.picture,
-              sub: user?.sub,
-              updated_at: user?.updated_at,
-            },
-          },
-          streaks: {
-            countryStreak: countryStreak || 0,
-            // movieStreak: movieStreak || 0,
-          },
-          signUpType: "oauth",
-          timezone: getUTCTime(),
-        };
-        console.log("unAuthData", unAuthData)
-        signupWithGameData(unAuthData)
-          .unwrap()
-          .then((payload) => {
-            Notification("Your data has been saved successfully!", "success");
-            localStorage.clear();
-            localStorage.setItem("token", payload?.token);
-            localStorage.setItem("user", JSON.stringify(payload?.user));
-          })
-          .catch((error) => {
-            console.error("Login failed:", error);
-          });
+
+const storedCountryAttempts = localStorage.getItem("countryAttempts");
+const countryAttempts = storedCountryAttempts
+  ? JSON.parse(storedCountryAttempts)
+  : [];
+
+const storedCountryStreak = localStorage.getItem("countryStreak");
+const countryStreak = storedCountryStreak ? JSON.parse(storedCountryStreak) : 0;
+
+const storedMovieAttempts = localStorage.getItem("movieAttempts");
+const movieAttempts = storedMovieAttempts
+  ? JSON.parse(storedMovieAttempts)
+  : [];
+
+const storedMovieStreak = localStorage.getItem("movieStreak");
+const movieStreak = storedMovieStreak ? JSON.parse(storedMovieStreak) : 0;
+
+if (
+  storedCountryAttempts &&
+  storedCountryStreak &&
+  storedMovieAttempts &&
+  storedMovieStreak
+) {
+  const attemptDataArr = [...countryAttempts, ...movieAttempts].map(
+    (attempt) => {
+      const answersKey = `answers-${attempt.quesID}`;
+      const storedAnswers = localStorage.getItem(answersKey);
+      const answers = storedAnswers ? JSON.parse(storedAnswers) : [];
+
+      return {
+        ...attempt,
+        firstAttempt: answers[0] || null,
+        secondAttempt: answers[1] || null,
+        thirdAttempt: answers[2] || null,
+        fourthAttempt: answers[3] || null
+      };
+    }
+  );
+
+  const unAuthData = {
+    attemptDataArr,
+    userInfo: {
+      email: user?.email,
+      name: user?.name,
+      oAuthId: user?.sub,
+      oAuthProvider: "google",
+      additionalData: {
+        email_verified: user?.email_verified,
+        family_name: user?.family_name,
+        given_name: user?.given_name,
+        locale: user?.locale,
+        nickname: user?.nickname,
+        picture: user?.picture,
+        sub: user?.sub,
+        updated_at: user?.updated_at
+      }
+    },
+    streaks: {
+      countryStreak: countryStreak || 0,
+      movieStreak: movieStreak || 0
+    },
+    signUpType: "oauth",
+    timezone: getUTCTime()
+  };
+
+  console.log("unAuthData", unAuthData);
+  signupWithGameData(unAuthData)
+    .unwrap()
+    .then((payload) => {
+      Notification("Your data has been saved successfully!", "success");
+      localStorage.clear();
+      localStorage.setItem("token", payload?.token);
+      localStorage.setItem("user", JSON.stringify(payload?.user));
+      navigate("/countries");
+    })
+    .catch((error) => {
+      console.error("Login failed:", error);
+    });
+} else {
+  SignInAuth0(userData)
+    .unwrap()
+    .then((payload) => {
+      Notification("Login successful!", "success");
+      localStorage.setItem("token", payload?.token);
+      localStorage?.setItem("user", JSON.stringify(payload?.user));
+      navigate("/countries");
+    })
+    .catch((error) => {
+      console.error("Login failed:", error);
+    });
+}
       }
     };
-
     authenticateUser();
+    return () => (ignore = true);
   }, [isAuthenticated, user, SignInAuth0, getAccessTokenSilently]);
   return (
     <>
@@ -125,7 +163,7 @@ const Home = () => {
                       className="animate-up-and-down"
                     />
                   </div>
-                  <div className="w-full">
+                  {/* <div className="w-full">
                     <Button
                       authButton={true}
                       text="Continue"
@@ -133,7 +171,7 @@ const Home = () => {
                       onClick={handleSubmit}
                       className="mt-2"
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
