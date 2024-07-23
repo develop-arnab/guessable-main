@@ -84,6 +84,19 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   //     setQuestionStats(updatedStats);
   //   }
   // }, [stats]);
+
+  useEffect(() => {
+    console.log("stats ", stats);
+    if (stats?.response) {
+      const updatedStats = Object.entries(stats.response)
+        .filter(
+          ([key, value]) => key !== "totalAttempts" && typeof value === "string"
+        ) // Exclude totalAttempts and ensure value is a string
+        .map(([, value]) => Math.round(parseFloat(value.replace("%", ""))));
+      setQuestionStats(updatedStats);
+    }
+  }, [stats]);
+  
   const { data: allMovies } = useGetAllMoviesQuery();
 
   useEffect(() => {
