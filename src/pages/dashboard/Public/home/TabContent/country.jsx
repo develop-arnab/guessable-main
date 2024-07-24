@@ -1182,7 +1182,10 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
                 {currentAttempt?.attemptValue > 1 ||
                 currentAttempt?.isCorrect ? (
                   <img
-                    src={`${import.meta.env.VITE_API_URL}/${
+                    // src={`${import.meta.env.VITE_API_URL}/${
+                    //   questionClues?.[1]
+                    // }`}
+                    src={`/${
                       questionClues?.[1]
                     }`}
                     className="w-[30px] h-[20px]"
