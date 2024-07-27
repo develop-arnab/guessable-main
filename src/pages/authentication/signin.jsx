@@ -76,22 +76,21 @@ const SignIn = ({ setModalType, setOpen }) => {
             WELCOME TO GUESSABLE 👋
           </h2>
           <h2 className="mt-2 text-lightGray leading-2 tracking-tight  text-[12px] font-[400] font-poppins">
-            <span className="font-bold">Benefits of Login:</span> Lorem ipsum
-            dolor, sit amet consectetur adipisicing elit. Voluptatum quod
-            expedita, vitae veniam molestiae ipsa cumque
+            <span className="font-bold">Benefits of Login:</span> Signup to
+            track your Guessable stats across devices. No spam, I promise!
           </h2>
           <div className="w-full flex justify-center items-center gap-3">
             <LoginAuth0Button type="google" />
             <LoginAuth0Button type="facebook" />
           </div>
-          <h2 className="text-center my-1 text-[20px] font-bold text-gray3">
+          {/* <h2 className="text-center my-1 text-[20px] font-bold text-gray3">
             OR
           </h2>
           <h2 className="mt-3 text-lightGray leading-2 tracking-tight  text-[12px] font-[400] font-poppins">
             Kindly fill in your details below to login
-          </h2>
+          </h2> */}
         </div>
-        <div className="mt-0 sm:mx-auto sm:w-full sm:max-w-sm">
+        {/* <div className="mt-0 sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="" action="#" method="POST">
             <div>
               <div className="mt-3">
@@ -193,7 +192,7 @@ const SignIn = ({ setModalType, setOpen }) => {
               </button>
             </div>
           </form>
-        </div>
+        </div> */}
       </div>
     </>
   );

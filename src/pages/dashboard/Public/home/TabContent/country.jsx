@@ -364,6 +364,7 @@ useEffect(() => {
                 attemptFound = true;
 
                 const result = await makeAttemptForUnregisteredUser({
+                  userID : localStorage.getItem("userID"),
                   chooseValue: values.option,
                   questionType: "country",
                   attemptData: {
@@ -501,9 +502,10 @@ useEffect(() => {
                 isCorrect: false,
               };
               const result = await makeAttemptForUnregisteredUser({
+                userID: localStorage.getItem("userID"),
                 chooseValue: values.option,
                 questionType: "country",
-                attemptData: newAttemptObj,
+                attemptData: newAttemptObj
               });
 
               newAttemptObj.attemptValue = 1;

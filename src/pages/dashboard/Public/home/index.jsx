@@ -2,10 +2,12 @@
 /* eslint-disable react/prop-types */
 import Layout from "./layout";
 import { Tabs } from "antd";
-import { FaCity } from "react-icons/fa";
+import { FaGlobe } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { FaPhotoVideo } from "react-icons/fa";
 import MovieContent from "./TabContent/movie";
 import CountryContent from "./TabContent/country";
+import PeopleContent from "./TabContent/people";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
@@ -16,6 +18,7 @@ import {
 import { useEffect, useState } from "react";
 import Loader from "../../../../components/Loader";
 import { Notification } from "../../../../components/ToastNotification";
+import ShortUniqueId from "short-unique-id";
 
 const TabHeader = ({ name, icon }) => {
   return (
@@ -38,11 +41,24 @@ const Home = () => {
   const [globalSelectedDate, setGlobalSelectedDate] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  
+  useEffect(() => {
+    if(!isLoggedIn){
+      console.log("I am not logged in")
+      if (!localStorage.getItem("userID")) {
+        const uid = new ShortUniqueId({ length: 10 });
+        localStorage.setItem("userID", uid.rnd());
+      }
+    }
+  }, [])
+  
 
   const [questionType, setQuestionType] = useState(
     location.pathname === "/" || location.pathname === "/countries"
       ? "country"
-      : "movie",
+      : location.pathname === "/movies"
+      ? "movie"
+      : "people"
   );
 
   const {
@@ -120,12 +136,15 @@ const Home = () => {
     } else if (key === "movies") {
       setQuestionType("movie");
       setUserSelectedDate(null);
+    } else if (key === "people") {
+      setQuestionType("people");
+      setUserSelectedDate(null);
     }
     localStorage.setItem("current_tab", key);
   };
 
   let activeKey = location.pathname.replace("/", "");
-  if (!["countries", "movies"].includes(activeKey)) {
+  if (!["countries", "movies", "people"].includes(activeKey)) {
     activeKey = "countries";
   }
 
@@ -154,7 +173,7 @@ const Home = () => {
             onChange={onChange}
           >
             <TabPane
-              tab={<TabHeader name="Countries" icon={<FaCity />} />}
+              tab={<TabHeader name="Countries" icon={<FaGlobe />} />}
               key="countries"
             >
               <CountryContent
@@ -171,6 +190,19 @@ const Home = () => {
               key="movies"
             >
               <MovieContent
+                boolUserSelectedDate={boolUserSelectedDate}
+                question={questionData}
+                isLoading={questionLoading}
+                error={questionError}
+                setGlobalSelectedDate={setGlobalSelectedDate}
+                globalSelectedDate={globalSelectedDate}
+              />
+            </TabPane>
+            <TabPane
+              tab={<TabHeader name="People" icon={<FaUser />} />}
+              key="people"
+            >
+              <PeopleContent
                 boolUserSelectedDate={boolUserSelectedDate}
                 question={questionData}
                 isLoading={questionLoading}

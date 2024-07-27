@@ -13,119 +13,125 @@ export const api = createApi({
         headers.set("authorization", `Bearer ${token ? newStr : null}`);
       }
       return headers;
-    },
+    }
   }),
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
         url: "signin",
         method: "POST",
-        body: credentials,
-      }),
+        body: credentials
+      })
     }),
     signIn0Auth: builder.mutation({
       query: (credentials) => ({
         url: "signin-oauth",
         method: "POST",
-        body: credentials,
-      }),
+        body: credentials
+      })
     }),
     getQuestionsByUnAuthUser: builder.query({
       query: (query) => ({
         url: `getQuestionForUnregisteredUser/${query?.questionType}`,
-        method: "GET",
-      }),
+        method: "GET"
+      })
     }),
     getQuestionsByAuthUser: builder.query({
       query: (query) => ({
         url: `questionForTheDay/${query?.questionType}`,
-        method: "GET",
-      }),
+        method: "GET"
+      })
     }),
     getAllCountries: builder.query({
       query: () => ({
         url: `getAllCountries`,
-        method: "GET",
-      }),
+        method: "GET"
+      })
+    }),
+    getAllPeople: builder.query({
+      query: () => ({
+        url: `getAllPeople`,
+        method: "GET"
+      })
     }),
     getAllMovies: builder.query({
       query: () => ({
         url: `getAllMovies`,
-        method: "GET",
-      }),
+        method: "GET"
+      })
     }),
     getUserSelectedQuestion: builder.query({
       query: (query) => {
         return {
           url: `questionByDate/${query?.questionType}/${query?.date}`,
-          method: "GET",
+          method: "GET"
         };
-      },
+      }
     }),
     makeAttemptForUnregisteredUser: builder.mutation({
       query: (credentials) => ({
         url: "makeAttemptForUnregisteredUser",
         method: "PUT",
-        body: credentials,
-      }),
+        body: credentials
+      })
     }),
     makeAttempt: builder.mutation({
       query: (credentials) => ({
         url: "makeAttempt",
         method: "PUT",
-        body: credentials,
-      }),
+        body: credentials
+      })
     }),
     makeOldQuestionAttempt: builder.mutation({
       query: (credentials) => ({
         url: "makeAttemptForOldQuestion",
         method: "PUT",
-        body: credentials,
-      }),
+        body: credentials
+      })
     }),
     getQuestionState: builder.query({
       query: (query) => {
         return {
           url: `questionStats/` + query.quesId,
-          method: "GET",
+          method: "GET"
         };
-      },
+      }
     }),
     getUserStreak: builder.query({
       query: () => {
         return {
           url: `getStreaks`,
-          method: "GET",
+          method: "GET"
         };
-      },
+      }
     }),
     signupWithGameData: builder.mutation({
       query: (credentials) => ({
         url: "signupWithGameData",
         method: "POST",
-        body: credentials,
-      }),
+        body: credentials
+      })
     }),
     signUp: builder.mutation({
       query: (credentials) => ({
         url: "signup",
         method: "POST",
-        body: credentials,
-      }),
+        body: credentials
+      })
     }),
     logout: builder.mutation({
       query: () => ({
         url: "users/logout",
-        method: "POST",
-      }),
+        method: "POST"
+      })
     }),
     isLoggedIn: builder.query({
       query: () => ({
         url: "isTokenExpired",
-        method: "GET",
-      }),
-    }),
-  }),
+        method: "GET"
+      })
+    })
+  })
 });
 
 export const {
@@ -145,4 +151,5 @@ export const {
   useGetUserStreakQuery,
   useGetAllMoviesQuery,
   useGetAllCountriesQuery,
+  useGetAllPeopleQuery
 } = api;

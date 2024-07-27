@@ -64,13 +64,21 @@ const movieAttempts = storedMovieAttempts
 const storedMovieStreak = localStorage.getItem("movieStreak");
 const movieStreak = storedMovieStreak ? JSON.parse(storedMovieStreak) : 0;
 
+const storedpeopleAttempts = localStorage.getItem("peopleAttempts");
+const peopleAttempts = storedpeopleAttempts
+  ? JSON.parse(storedpeopleAttempts)
+  : [];
+
+const storedpeopleStreak = localStorage.getItem("peopleStreak");
+const peopleStreak = storedpeopleStreak ? JSON.parse(storedpeopleStreak) : 0;
+// TODO : FIX WHEN SIGN UP WITH GAME DATA IS CALLED
 if (
-  storedCountryAttempts &&
-  storedCountryStreak &&
-  storedMovieAttempts &&
-  storedMovieStreak
+  storedCountryAttempts ||
+  storedCountryStreak 
+  // && storedMovieAttempts &&
+  // storedMovieStreak
 ) {
-  const attemptDataArr = [...countryAttempts, ...movieAttempts].map(
+  const attemptDataArr = [...countryAttempts, ...movieAttempts, ...peopleAttempts].map(
     (attempt) => {
       const answersKey = `answers-${attempt.quesID}`;
       const storedAnswers = localStorage.getItem(answersKey);
@@ -87,6 +95,7 @@ if (
   );
 
   const unAuthData = {
+    userID : localStorage.getItem("userID"),
     attemptDataArr,
     userInfo: {
       email: user?.email,
@@ -106,7 +115,8 @@ if (
     },
     streaks: {
       countryStreak: countryStreak || 0,
-      movieStreak: movieStreak || 0
+      movieStreak: movieStreak || 0,
+      peopleStreak: peopleStreak || 0
     },
     signUpType: "oauth",
     timezone: getUTCTime()

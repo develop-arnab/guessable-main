@@ -50,6 +50,7 @@ function App() {
         <Route path="/" exact element={<Home />} />
         <Route path="/countries" element={<Home />} />
         <Route path="/movies" element={<Home />} />
+        <Route path="/people" element={<Home />} />
         <Route path="/welcome" element={<WelcomePage />} />
         <Route element={<PrivateOutlet />}></Route>
       </Routes>
