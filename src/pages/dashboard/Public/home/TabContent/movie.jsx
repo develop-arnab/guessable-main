@@ -28,6 +28,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   const [initialValues] = useState({ option: "" });
   const [isExploding, setIsExploding] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [makeAttemptForUnregisteredUser, { isLoading: loadingUnAth }] =
     useMakeAttemptForUnregisteredUserMutation();
   const [makeAttempt, { isLoading: loadingAuth }] = useMakeAttemptMutation();
@@ -136,12 +137,13 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               attemptFound = true;
 
               const result = await makeOldAttempt({
+                userID: localStorage.getItem("userID"),
                 chooseValue: values.option,
                 questionType: "movie",
                 attemptData: {
                   ...attempt,
-                  attemptValue: attempt.attemptValue,
-                },
+                  attemptValue: attempt.attemptValue
+                }
               });
 
               attempt.attemptValue += 1;
@@ -214,7 +216,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     result?.data?.clueMainAfter,
                   );
                   // setStreak(calculateStreak() + +result.data?.isCorrect);
-                  setStreak(calculateStreak("increament"));
+                  // setStreak(calculateStreak("increament"));
+                  setShowConfetti(true);
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -255,9 +258,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               isCorrect: false,
             };
             const result = await makeOldAttempt({
+              userID: localStorage.getItem("userID"),
               chooseValue: values.option,
               questionType: "movie",
-              attemptData: newAttemptObj,
+              attemptData: newAttemptObj
             });
 
             newAttemptObj.attemptValue = newAttemptObj.attemptValue + 1;
@@ -298,7 +302,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   result?.data?.clueMainAfter,
                 );
                 // setStreak(calculateStreak() + +result.data?.isCorrect);
-                setStreak(calculateStreak("increament"));
+                // setStreak(calculateStreak("increament"));
+                setShowConfetti(true);
               }
               const answers = JSON.parse(
                 localStorage.getItem(`answers-${question?.id}`),
@@ -797,9 +802,52 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
     setAllAnswers(allAnswers);
   }, [question?.id]);
 
+      useEffect(() => {
+        if (question?.attemptsInfo) {
+          const {
+            attemptValue,
+            maxAttempts,
+            isCorrect,
+            clueOne,
+            clueTwo,
+            clueThree
+          } = question.attemptsInfo;
+          console.log(
+            "LOGGED IN QUES ",
+            attemptValue,
+            maxAttempts,
+            isCorrect,
+            clueOne,
+            clueTwo,
+            clueThree
+          );
+          if (isCorrect || attemptValue >= maxAttempts) {
+            const clues = [];
+            if (clueOne) clues.push(clueOne.Year);
+            if (clueTwo) clues.push(clueTwo.Director);
+            if (clueThree) clues.push(clueThree.Cast);
+            console.log("LOGGED IN allResponses ", question?.allResponses);
+            setQuestionClues(clues);
+            setCorrectAnswer(question?.answer);
+            setClueMainAfter(question?.clueMainAfter);
+            const filteredAnswers = question?.allResponses.filter(
+              (element) => element !== null
+            );
+            setAllAnswers(filteredAnswers);
+            setCurrentAttempt({
+              // ...currentAttempt,
+              quesID: question?.id,
+              attemptValue: attemptValue,
+              isCorrect: isCorrect
+            });
+          }
+        }
+      }, [question]);
+
   const { values, setFieldValue, handleSubmit } = formik;
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const totalAttempts =
       JSON.parse(localStorage.getItem("movieAttempts")) || [];
     const attempt = totalAttempts.filter((attempt) => {
@@ -807,7 +855,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
     })[0];
     console.log("attempt", attempt);
     console.log("totalAttempts", totalAttempts);
-    if (totalAttempts.length > 0 && attempt) {
+    if(!token) {
+      if (totalAttempts.length > 0 && attempt) {
       if (attempt) {
         setCurrentAttempt({
           ...currentAttempt,
@@ -821,13 +870,13 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
         attemptValue: 0,
         isCorrect: false,
       });
-    }
+    }}
     // setStreak(calculateStreak());
     refetchStats();
   }, [handleSubmit, question?.id]);
 
   const handleCopyText = (text) => {
-    const url = "https://guessable-nabeel.vercel.app/movies";
+    const url = "https://main.d2bbhsad3oji45.amplifyapp.com/movies";
     copy(`${text} ${url}`).then(() => {
       Notification("You have Coppied text successfully!");
     });
@@ -927,6 +976,18 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   };
   return (
     <>
+      {showConfetti && (
+        <div
+          style={{
+            display: "flex",
+            translate: "50%",
+            position: "absolute",
+            left: "50%"
+          }}
+        >
+          <ConfettiExplosion duration={6000} width={1000} />
+        </div>
+      )}
       {isExploding && (
         <div
           style={{

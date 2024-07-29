@@ -24,12 +24,12 @@ export const generateRandomDateInRange = () => {
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const sixtyDaysBeforeYesterday = new Date(yesterday);
-  sixtyDaysBeforeYesterday.setDate(sixtyDaysBeforeYesterday.getDate() - 60);
+  const fifteenDaysBeforeYesterday = new Date(yesterday);
+  fifteenDaysBeforeYesterday.setDate(fifteenDaysBeforeYesterday.getDate() - 15);
 
   const randomTime =
-    Math.random() * (yesterday.getTime() - sixtyDaysBeforeYesterday.getTime()) +
-    sixtyDaysBeforeYesterday.getTime();
+    Math.random() * (yesterday.getTime() - fifteenDaysBeforeYesterday.getTime()) +
+    fifteenDaysBeforeYesterday.getTime();
   const randomDate = new Date(randomTime);
 
   const year = randomDate.getFullYear();

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import Header from "../../../../layout/header";
-import { FaRegCalendarAlt } from "react-icons/fa";
+import { FaRegCalendarAlt, FaUser } from "react-icons/fa";
 import { GoQuestion } from "react-icons/go";
 import { IoIosStats } from "react-icons/io";
 import Modal from "../../../../components/Modal";
@@ -11,7 +11,8 @@ import Faq from "../../../../components/Modal/Content/faqs";
 import Login from "../../../authentication/signin";
 import Signup from "../../../authentication/signup";
 import { useAuth0 } from "@auth0/auth0-react";
-
+import { DownOutlined, SmileOutlined } from "@ant-design/icons";
+import { Dropdown, Space } from "antd";
 const Home = ({
   children,
   userSelectedDate,
@@ -49,7 +50,13 @@ const Home = ({
       logout();
     }
   };
-
+const items = [
+  {
+    key: "1",
+    danger: true,
+    label: <a onClick={logoutUser}>Logout</a>
+  }
+];
   return (
     <div className="bg-white3 min-h-screen flex flex-col">
       <div className="flex flex-col flex-grow bg-white sm:mx-auto sm:w-full sm:max-w-xl ">
@@ -95,12 +102,20 @@ const Home = ({
                     Login
                   </button>
                 ) : (
-                  <button
-                    onClick={logoutUser}
+                  <div
                     className="font-[600] text-[16px]"
+                    style={{ marginTop: 5 }}
                   >
-                    Logout
-                  </button>
+                    <Dropdown
+                      menu={{
+                        items
+                      }}
+                    >
+                      <Space>
+                        <FaUser size={20}/>
+                      </Space>
+                    </Dropdown>
+                  </div>
                 )}
               </div>
             </div>

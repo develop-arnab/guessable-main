@@ -60,6 +60,16 @@ const Home = () => {
       ? "movie"
       : "people"
   );
+  useEffect(() => {
+    setQuestionType(
+      location.pathname === "/" || location.pathname === "/countries"
+        ? "country"
+        : location.pathname === "/movies"
+        ? "movie"
+        : "people"
+    );
+  }, [location]);
+
 
   const {
     data: questionForUnAuthUser,

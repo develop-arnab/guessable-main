@@ -97,6 +97,14 @@ export const api = createApi({
         };
       }
     }),
+    getUserStats: builder.query({
+      query: (query) => {
+        return {
+          url: `getStats/` + query?.questionType,
+          method: "GET"
+        };
+      }
+    }),
     getUserStreak: builder.query({
       query: () => {
         return {
@@ -145,6 +153,7 @@ export const {
   useGetUserSelectedQuestionQuery,
   useMakeAttemptForUnregisteredUserMutation,
   useGetQuestionStateQuery,
+  useGetUserStatsQuery,
   useMakeAttemptMutation,
   useMakeOldQuestionAttemptMutation,
   useSignupWithGameDataMutation,

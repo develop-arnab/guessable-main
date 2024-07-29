@@ -27,6 +27,7 @@ import lose from "../../../../../../public/assets/lose.json";
 
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   const [isExploding, setIsExploding] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [initialValues] = useState({ option: "" });
   const [makeAttemptForUnregisteredUser, { isLoading: loadingUnAth }] =
     useMakeAttemptForUnregisteredUserMutation();
@@ -38,7 +39,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
 
   const { data, error,status, refetch } = useGetUserStreakQuery();
 
- 
+  console.log("Logged question ", question);
 
 
 console.log(userStreak);
@@ -46,10 +47,10 @@ console.log(userStreak);
    setUserStreak(data?.countryStreak || 0);
  }
 
-     const getLatestStreakFromDB = async () => {
-       const { data } = await refetch();
-       setUserStreak(data?.countryStreak);
-     };
+  const getLatestStreakFromDB = async () => {
+    const { data } = await refetch();
+    setUserStreak(data?.countryStreak);
+  };
  
 
   const [currentAttempt, setCurrentAttempt] = useState({
@@ -142,12 +143,13 @@ useEffect(() => {
               attemptFound = true;
 
               const result = await makeOldAttempt({
+                userID: localStorage.getItem("userID"),
                 chooseValue: values.option,
                 questionType: "country",
                 attemptData: {
                   ...attempt,
-                  attemptValue: attempt.attemptValue,
-                },
+                  attemptValue: attempt.attemptValue
+                }
               });
 
               attempt.attemptValue += 1;
@@ -224,7 +226,9 @@ useEffect(() => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter,
                   );
-                  setStreak(calculateStreak("increament"));
+                  // setStreak(calculateStreak("increament"));
+                  // setIsExploding(true);
+                  setShowConfetti(true)
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`),
@@ -265,9 +269,10 @@ useEffect(() => {
               isCorrect: false,
             };
             const result = await makeOldAttempt({
+              userID: localStorage.getItem("userID"),
               chooseValue: values.option,
               questionType: "country",
-              attemptData: newAttemptObj,
+              attemptData: newAttemptObj
             });
 
             newAttemptObj.attemptValue = newAttemptObj.attemptValue + 1;
@@ -319,7 +324,8 @@ useEffect(() => {
                   `clueMainAfter-${question?.id}`,
                   result?.data?.clueMainAfter,
                 );
-                setStreak(calculateStreak("increament"));
+                // setStreak(calculateStreak("increament"));
+                setShowConfetti(true);
               }
               const answers = JSON.parse(
                 localStorage.getItem(`answers-${question?.id}`),
@@ -847,35 +853,83 @@ useEffect(() => {
     setClueMainAfter(clueMainAfterLocal);
   }, [question?.id]);
 
+    useEffect(() => {
+      if (question?.attemptsInfo) {
+        const {
+          attemptValue,
+          maxAttempts,
+          isCorrect,
+          clueOne,
+          clueTwo,
+          clueThree
+        } = question.attemptsInfo;
+        console.log(
+          "LOGGED IN QUES ",
+          attemptValue,
+          maxAttempts,
+          isCorrect,
+          clueOne,
+          clueTwo,
+          clueThree
+        );
+        if (isCorrect || attemptValue >= maxAttempts) {
+          const clues = [];
+          if (clueOne?.LatLong) clues.push(JSON.parse(clueOne?.LatLong));
+          if (clueTwo) clues.push(clueTwo.Flag);
+          if (clueThree) clues.push(clueThree.Capital);
+          console.log("LOGGED IN allResponses ", question?.allResponses);
+          setQuestionClues(clues);
+          setCorrectAnswer(
+            question?.answer
+          );
+          setClueMainAfter(question?.clueMainAfter);
+          const filteredAnswers = question?.allResponses.filter(
+            (element) => element !== null
+          );
+          setAllAnswers(filteredAnswers);
+          setCurrentAttempt({
+            // ...currentAttempt,
+            quesID: question?.id,
+            attemptValue: attemptValue,
+            isCorrect: isCorrect
+          });
+        }
+      }
+    }, [question]);
+
+
   const { values, setFieldValue, handleSubmit } = formik;
   useEffect(() => {
+    const token = localStorage.getItem("token")
     const totalAttempts =
       JSON.parse(localStorage.getItem("countryAttempts")) || [];
     const attempt = totalAttempts.filter((attempt) => {
       return attempt.quesID === question?.id;
     })[0];
-
+    if(!token) {
     if (totalAttempts.length > 0 && attempt) {
       if (attempt) {
         setCurrentAttempt({
           ...currentAttempt,
           attemptValue: attempt?.attemptValue,
-          isCorrect: attempt?.isCorrect,
+          isCorrect: attempt?.isCorrect
         });
       }
     } else {
       setCurrentAttempt({
         quesID: question?.id,
         attemptValue: 0,
-        isCorrect: false,
+        isCorrect: false
       });
     }
+    }
+
     // setStreak(calculateStreak());
     refetchStats();
   }, [handleSubmit, question?.id]);
 
   const handleCopyText = (text) => {
-    const url = "https://guessable-nabeel.vercel.app/countries";
+    const url = "https://main.d2bbhsad3oji45.amplifyapp.com/countries";
     copy(`${text} ${url}`).then(() => {
       Notification("You have Coppied text successfully!");
     });
@@ -997,6 +1051,18 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
       };
   return (
     <>
+      {showConfetti && (
+        <div
+          style={{
+            display: "flex",
+            translate: "50%",
+            position: "absolute",
+            left: "50%"
+          }}
+        >
+          <ConfettiExplosion duration={6000} width={1000} />
+        </div>
+      )}
       {isExploding && (
         <div
           style={{
@@ -1187,9 +1253,7 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
                     // src={`${import.meta.env.VITE_API_URL}/${
                     //   questionClues?.[1]
                     // }`}
-                    src={`/${
-                      questionClues?.[1]
-                    }`}
+                    src={`/${questionClues?.[1]}`}
                     className="w-[30px] h-[20px]"
                     alt=""
                   />

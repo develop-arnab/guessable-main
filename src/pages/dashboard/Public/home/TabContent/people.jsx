@@ -27,6 +27,7 @@ import lose from "../../../../../../public/assets/lose.json";
 
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   const [isExploding, setIsExploding] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
   const [initialValues] = useState({ option: "" });
   const [makeAttemptForUnregisteredUser, { isLoading: loadingUnAth }] =
     useMakeAttemptForUnregisteredUserMutation();
@@ -137,6 +138,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               attemptFound = true;
 
               const result = await makeOldAttempt({
+                userID: localStorage.getItem("userID"),
                 chooseValue: values.option,
                 questionType: "people",
                 attemptData: {
@@ -219,7 +221,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     `clueMainAfter-${question?.id}`,
                     result?.data?.clueMainAfter
                   );
-                  setStreak(calculateStreak("increament"));
+                  // setStreak(calculateStreak("increament"));
+                  setShowConfetti(true);
                 }
                 const answers = JSON.parse(
                   localStorage.getItem(`answers-${question?.id}`)
@@ -260,6 +263,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               isCorrect: false
             };
             const result = await makeOldAttempt({
+              userID: localStorage.getItem("userID"),
               chooseValue: values.option,
               questionType: "people",
               attemptData: newAttemptObj
@@ -314,7 +318,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   `clueMainAfter-${question?.id}`,
                   result?.data?.clueMainAfter
                 );
-                setStreak(calculateStreak("increament"));
+                // setStreak(calculateStreak("increament"));
+                setShowConfetti(true);
               }
               const answers = JSON.parse(
                 localStorage.getItem(`answers-${question?.id}`)
@@ -835,35 +840,80 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
     setClueMainAfter(clueMainAfterLocal);
   }, [question?.id]);
 
+  useEffect(() => {
+    if (question?.attemptsInfo) {
+      const {
+        attemptValue,
+        maxAttempts,
+        isCorrect,
+        clueOne,
+        clueTwo,
+        clueThree
+      } = question.attemptsInfo;
+      console.log(
+        "LOGGED IN QUES ",
+        attemptValue,
+        maxAttempts,
+        isCorrect,
+        clueOne,
+        clueTwo,
+        clueThree
+      );
+      if (isCorrect || attemptValue >= maxAttempts) {
+        const clues = [];
+        if (clueOne) clues.push(clueOne.Year);
+        if (clueTwo) clues.push(clueTwo.Director);
+        if (clueThree) clues.push(clueThree.Cast);
+        console.log("LOGGED IN allResponses ", question?.allResponses);
+        setQuestionClues(clues);
+        setCorrectAnswer(question?.answer);
+        setClueMainAfter(question?.clueMainAfter);
+        const filteredAnswers = question?.allResponses.filter(
+          (element) => element !== null
+        );
+        setAllAnswers(filteredAnswers);
+        setCurrentAttempt({
+          // ...currentAttempt,
+          quesID: question?.id,
+          attemptValue: attemptValue,
+          isCorrect: isCorrect
+        });
+      }
+    }
+  }, [question]);
+
   const { values, setFieldValue, handleSubmit } = formik;
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const totalAttempts =
       JSON.parse(localStorage.getItem("peopleAttempts")) || [];
     const attempt = totalAttempts.filter((attempt) => {
       return attempt.quesID === question?.id;
     })[0];
 
-    if (totalAttempts.length > 0 && attempt) {
-      if (attempt) {
+    if (!token) {
+      if (totalAttempts.length > 0 && attempt) {
+        if (attempt) {
+          setCurrentAttempt({
+            ...currentAttempt,
+            attemptValue: attempt?.attemptValue,
+            isCorrect: attempt?.isCorrect
+          });
+        }
+      } else {
         setCurrentAttempt({
-          ...currentAttempt,
-          attemptValue: attempt?.attemptValue,
-          isCorrect: attempt?.isCorrect
+          quesID: question?.id,
+          attemptValue: 0,
+          isCorrect: false
         });
       }
-    } else {
-      setCurrentAttempt({
-        quesID: question?.id,
-        attemptValue: 0,
-        isCorrect: false
-      });
     }
     // setStreak(calculateStreak());
     refetchStats();
   }, [handleSubmit, question?.id]);
 
   const handleCopyText = (text) => {
-    const url = "https://guessable-nabeel.vercel.app/countries";
+    const url = "https://main.d2bbhsad3oji45.amplifyapp.com/people";
     copy(`${text} ${url}`).then(() => {
       Notification("You have Coppied text successfully!");
     });
@@ -983,6 +1033,18 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   };
   return (
     <>
+      {showConfetti && (
+        <div
+          style={{
+            display: "flex",
+            translate: "50%",
+            position: "absolute",
+            left: "50%"
+          }}
+        >
+          <ConfettiExplosion duration={6000} width={1000} />
+        </div>
+      )}
       {isExploding && (
         <div
           style={{
