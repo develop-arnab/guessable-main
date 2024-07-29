@@ -74,28 +74,32 @@ const peopleStreak = storedpeopleStreak ? JSON.parse(storedpeopleStreak) : 0;
 // TODO : FIX WHEN SIGN UP WITH GAME DATA IS CALLED
 if (
   storedCountryAttempts ||
-  storedCountryStreak 
-  // && storedMovieAttempts &&
-  // storedMovieStreak
+  storedCountryStreak ||
+  storedMovieAttempts ||
+  storedMovieStreak ||
+  storedpeopleAttempts ||
+  storedpeopleStreak
 ) {
-  const attemptDataArr = [...countryAttempts, ...movieAttempts, ...peopleAttempts].map(
-    (attempt) => {
-      const answersKey = `answers-${attempt.quesID}`;
-      const storedAnswers = localStorage.getItem(answersKey);
-      const answers = storedAnswers ? JSON.parse(storedAnswers) : [];
+  const attemptDataArr = [
+    ...countryAttempts,
+    ...movieAttempts,
+    ...peopleAttempts
+  ].map((attempt) => {
+    const answersKey = `answers-${attempt.quesID}`;
+    const storedAnswers = localStorage.getItem(answersKey);
+    const answers = storedAnswers ? JSON.parse(storedAnswers) : [];
 
-      return {
-        ...attempt,
-        firstAttempt: answers[0] || null,
-        secondAttempt: answers[1] || null,
-        thirdAttempt: answers[2] || null,
-        fourthAttempt: answers[3] || null
-      };
-    }
-  );
+    return {
+      ...attempt,
+      firstAttempt: answers[0] || null,
+      secondAttempt: answers[1] || null,
+      thirdAttempt: answers[2] || null,
+      fourthAttempt: answers[3] || null
+    };
+  });
 
   const unAuthData = {
-    userID : localStorage.getItem("userID"),
+    userID: localStorage.getItem("userID"),
     attemptDataArr,
     userInfo: {
       email: user?.email,
