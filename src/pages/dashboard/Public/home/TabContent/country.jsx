@@ -946,10 +946,13 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
                 {currentAttempt?.attemptValue > 0 ||
                 currentAttempt?.isCorrect ? (
                   <div>
-                    {questionClues?.[0]?.lat?.split(" ")[0]}°{" "}
-                    {questionClues?.[0]?.lat?.split(" ")[1]},{" "}
-                    {questionClues?.[0]?.long?.split(" ")[0]}°{" "}
-                    {questionClues?.[0]?.long?.split(" ")[1]}
+                    <div>
+                      {questionClues?.[0]?.lat?.split(" ")[0]}°{" "}
+                      {questionClues?.[0]?.lat?.split(" ")[1]},{" "}
+                      {questionClues?.[0]?.long?.split(" ")[0]}°{" "}
+                      {questionClues?.[0]?.long?.split(" ")[1]}
+                    </div>
+                    <div>Lat Long</div>
                   </div>
                 ) : (
                   <div>Lat Long</div>
@@ -964,14 +967,17 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
               >
                 {currentAttempt?.attemptValue > 1 ||
                 currentAttempt?.isCorrect ? (
-                  <img
-                    // src={`${import.meta.env.VITE_API_URL}/${
-                    //   questionClues?.[1]
-                    // }`}
-                    src={`/${questionClues?.[1]}`}
-                    className="w-[30px] h-[20px]"
-                    alt=""
-                  />
+                  <div>
+                    <img
+                      // src={`${import.meta.env.VITE_API_URL}/${
+                      //   questionClues?.[1]
+                      // }`}
+                      src={`/${questionClues?.[1]}`}
+                      className="w-[30px] h-[20px]"
+                      alt=""
+                    />
+                    <div>Flag</div>
+                  </div>
                 ) : (
                   <div>Flag</div>
                 )}
@@ -985,7 +991,10 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
               >
                 {currentAttempt?.attemptValue > 2 ||
                 currentAttempt?.isCorrect ? (
-                  <div>{questionClues?.[2]}</div>
+                  <div>
+                    <div>{questionClues?.[2]}</div>
+                    <div>Capital</div>
+                  </div>
                 ) : (
                   <div>Capital</div>
                 )}

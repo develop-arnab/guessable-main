@@ -805,7 +805,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
             {question?.clueImage && (
               <div className="mt-5 w-[95%] overflow-auto rounded-md mx-3 flex justify-center items-center">
                 <img
-                  src={`${import.meta.env.VITE_API_URL}/${question?.clueImage}`}
+                  src={`${question?.clueImage}`}
                   alt=""
                 />
               </div>
@@ -870,7 +870,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               >
                 {currentAttempt?.attemptValue > 0 ||
                 currentAttempt?.isCorrect ? (
-                  <div>{questionClues?.[0]}</div>
+                  <div>
+                    <div>{questionClues?.[0]}</div>
+                    <div>Release Year</div>
+                  </div>
                 ) : (
                   <div>Release Year</div>
                 )}
@@ -890,7 +893,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                         return <div key={i}>{el}</div>;
                       })
                     ) : (
-                      <div>{questionClues?.[1]}</div>
+                      <div>
+                        <div>{questionClues?.[1]}</div>
+                        <div>Cast</div>
+                      </div>
                     )}
                   </div>
                 ) : (
@@ -906,7 +912,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               >
                 {currentAttempt?.attemptValue > 2 ||
                 currentAttempt?.isCorrect ? (
-                  <div>{questionClues?.[2]}</div>
+                  <div>
+                    <div>{questionClues?.[2]}</div>
+                    <div>Director</div>
+                  </div>
                 ) : (
                   <div>Director</div>
                 )}

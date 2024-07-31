@@ -53,6 +53,18 @@ const Home = ({
 const items = [
   {
     key: "1",
+    label: (
+      <a target="_blank" rel="noopener noreferrer">
+        {localStorage.getItem("token") && (
+          <div className="text-center font-[600] text-[15px] mt-4 font-poppins">
+            {JSON.parse(localStorage.getItem("user")).email}
+          </div>
+        )}
+      </a>
+    )
+  },
+  {
+    key: "2",
     danger: true,
     label: <a onClick={logoutUser}>Logout</a>
   }

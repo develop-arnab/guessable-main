@@ -130,13 +130,18 @@ const States = ({ open, setOpen }) => {
             localStorage.getItem("current_tab")?.slice(1)
           : "Countries"}
       </div>
+      {localStorage.getItem("token") && (
+        <div className="text-center font-[600] text-[15px] mt-4 font-poppins">
+          {JSON.parse(localStorage.getItem("user")).email}
+        </div>
+      )}
       <div className="flex justify-around flex-wrap items-start font-[700] mt-4 font-poppins">
         <div className="flex flex-col justify-center items-center">
           <div className="text-[20px]">{stats.played}</div>
           <div className="-mb-2 text-[15px]">Played</div>
         </div>
         <div className="flex flex-col justify-center items-center">
-          <div className="text-[20px]">{stats.winPercentage ?? 0.0}%</div>
+          <div className="text-[20px]">{(stats.winPercentage )&& (stats.winPercentage!== "NaN") ? stats.winPercentage : 0}%</div>
           <div className="-mb-2 text-[15px]">Win</div>
         </div>
         <div className="flex flex-col justify-center items-center">

@@ -912,11 +912,14 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                 {currentAttempt?.attemptValue > 0 ||
                 currentAttempt?.isCorrect ? (
                   <div>
-                    {questionClues?.[0]}
-                    {/* {questionClues?.[0]?.lat?.split(" ")[0]}°{" "}
+                    <div>
+                      {questionClues?.[0]}
+                      {/* {questionClues?.[0]?.lat?.split(" ")[0]}°{" "}
                     {questionClues?.[0]?.lat?.split(" ")[1]},{" "}
                     {questionClues?.[0]?.long?.split(" ")[0]}°{" "}
                     {questionClues?.[0]?.long?.split(" ")[1]} */}
+                    </div>
+                    <div>Nationality</div>
                   </div>
                 ) : (
                   <div>Nationality</div>
@@ -931,7 +934,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               >
                 {currentAttempt?.attemptValue > 1 ||
                 currentAttempt?.isCorrect ? (
-                  <div>{questionClues?.[1]}</div>
+                  <div>
+                    <div>{questionClues?.[1]}</div>
+                    <div>Lifespan</div>
+                  </div>
                 ) : (
                   //   <img
                   //     // src={`${import.meta.env.VITE_API_URL}/${
@@ -953,7 +959,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               >
                 {currentAttempt?.attemptValue > 2 ||
                 currentAttempt?.isCorrect ? (
-                  <div>{questionClues?.[2]}</div>
+                  <div>
+                    <div>{questionClues?.[2]}</div>
+                    <div>Initials</div>
+                  </div>
                 ) : (
                   <div>Initials</div>
                 )}
