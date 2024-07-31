@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+import ProgressBar from "@ramonak/react-progress-bar";
 import {
   useGetUserStatsQuery,
   useGetUserStreakQuery
@@ -6,7 +6,7 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const States = ({ open, setOpen }) => {
+const States = ({ open, setOpen, recallStats }) => {
   const location = useLocation();
   const [questionType, setQuestionType] = useState(
     location.pathname === "/" || location.pathname === "/countries"
@@ -39,7 +39,9 @@ const States = ({ open, setOpen }) => {
   useEffect(() => {
     console.log("RECALL ");
     refetch();
-  }, [open]);
+  }, [recallStats]);
+
+
 
   useEffect(() => {
     if (userStats) {
@@ -141,7 +143,12 @@ const States = ({ open, setOpen }) => {
           <div className="-mb-2 text-[15px]">Played</div>
         </div>
         <div className="flex flex-col justify-center items-center">
-          <div className="text-[20px]">{(stats.winPercentage )&& (stats.winPercentage!== "NaN") ? stats.winPercentage : 0}%</div>
+          <div className="text-[20px]">
+            {stats.winPercentage && stats.winPercentage !== "NaN"
+              ? stats.winPercentage
+              : 0}
+            %
+          </div>
           <div className="-mb-2 text-[15px]">Win</div>
         </div>
         <div className="flex flex-col justify-center items-center">
@@ -154,9 +161,15 @@ const States = ({ open, setOpen }) => {
               ? localStorage.getItem("peopleStreak") ?? 0
               : localStorage.getItem("countryStreak") ?? 0}
           </div>
-          <div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center"
+            }}
+          >
             <div className="-mb-2 text-[15px]">Current</div>
-            <div className="">Streaks</div>
+            <div className="">Streak</div>
           </div>
         </div>
         {/* <div className="flex flex-col justify-center items-center">
@@ -167,21 +180,77 @@ const States = ({ open, setOpen }) => {
           </div>
         </div> */}
       </div>
-      <div className="mt-[10px]">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          marginTop: "20px",
+          marginBottom: "20px",
+          alignItems: "center"
+        }}
+      >
         <div className="my-[10px] font-poppins text-[15px] font-[600]">
           Guess Distribution
         </div>
         {stats?.guessDistribution &&
           Object.entries(stats.guessDistribution).map(([key, value], i) => (
-            <div key={i} className="flex items-start">
-              <div className="w-[60px]">{key}.</div>
-              <Progress
-                percent={parseFloat(value)}
-                size={["100%", 14]}
-                strokeColor={parseFloat(value) >= 20 ? "#51ab9f" : "#c3505e"}
-                showInfo={false}
-              />
-              <div className="w-[60px]">({value})</div>
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "80%",
+                justifyContent: "center"
+              }}
+            >
+              <div style={{ margin: "5px", flex: 1 }}>
+                {key !== "X" ? `Attempt ${key}` : "Incorrect X"}{" "}
+              </div>
+              <div
+                style={{
+                  flex: 4,
+                  paddingLeft: "10px",
+                  margin: "5px"
+                  // backgroundColor: "aqua"
+                  // strokeColor={parseFloat(value) >= 20 ? "#51ab9f" : "#c3505e"}
+                }}
+              >
+                <ProgressBar
+                  completed={parseFloat(value)}
+                  // bgColor={parseFloat(value) >= 20 ? "#51ab9f" : "#c3505e"}
+                  bgColor={
+                    parseFloat(value) >= 90
+                      ? "#004d00"
+                      : parseFloat(value) >= 80
+                      ? "#006400"
+                      : parseFloat(value) >= 70
+                      ? "#007300"
+                      : parseFloat(value) >= 60
+                      ? "#008000"
+                      : parseFloat(value) >= 50
+                      ? "#669900"
+                      : parseFloat(value) >= 40
+                      ? "#999900"
+                      : parseFloat(value) >= 30
+                      ? "#996600"
+                      : parseFloat(value) >= 20
+                      ? "#994d00"
+                      : parseFloat(value) >= 10
+                      ? "#993300"
+                      : "#990000"
+                  }
+                />
+              </div>
+              {/* <div
+                style={{
+                  flex: 1,
+                  paddingRight: "10px",
+                  backgroundColor: "aquamarine",
+                  textAlign: "end"
+                }}
+              >
+                ({value})
+              </div> */}
             </div>
           ))}
         <div className="my-[10px] text-center font-poppins text-[15px] font-[600]">

@@ -13,6 +13,7 @@ import Signup from "../../../authentication/signup";
 import { useAuth0 } from "@auth0/auth0-react";
 import { DownOutlined, SmileOutlined } from "@ant-design/icons";
 import { Dropdown, Space } from "antd";
+import moment from "moment";
 const Home = ({
   children,
   userSelectedDate,
@@ -164,7 +165,7 @@ const items = [
           />
         )) ||
           (modalType === "faq" && <Faq />) ||
-          (modalType === "stats" && <Stats open={open} setOpen={setOpen} />) ||
+          (modalType === "stats" && <Stats open={open} setOpen={setOpen} recallStats = {moment.now()} />) ||
           (modalType === "login" && (
             <Login
               modalType={modalType}

@@ -833,7 +833,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
             <div className="text-center text-[20px] font-[700] mt-4 font-poppins">
               Guess the person based on this clue
             </div>
-            <div className="text-center font-poppins mt-3">
+            <div className="text-justify px-[5%] font-poppins mt-3">
               {currentAttempt?.isCorrect || currentAttempt?.attemptValue >= 4
                 ? clueMainAfter
                 : question?.clueMainBefore}

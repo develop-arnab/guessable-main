@@ -797,17 +797,14 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
             <div className="text-center text-[20px] font-[700] mt-4 font-poppins">
               Guess the Hollywood movie based on this clue
             </div>
-            <div className="text-center font-poppins mt-3">
+            <div className="text-justify px-[5%] font-poppins mt-3">
               {currentAttempt?.isCorrect || currentAttempt?.attemptValue >= 4
                 ? clueMainAfter
                 : question?.clueMainBefore}
             </div>
             {question?.clueImage && (
               <div className="mt-5 w-[95%] overflow-auto rounded-md mx-3 flex justify-center items-center">
-                <img
-                  src={`${question?.clueImage}`}
-                  alt=""
-                />
+                <img src={`${question?.clueImage}`} alt="" />
               </div>
             )}
             <div className="grid grid-cols-3 font-[600] font-poppins">
