@@ -9,7 +9,7 @@ import Button from "../../components/Button";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { useAuth0 } from "@auth0/auth0-react";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
+import { FaFacebook, FaApple, FaTwitter } from "react-icons/fa";
 import { getUTCTime } from "../../utils/constant";
 import { useNavigate } from "react-router-dom";
 
@@ -20,9 +20,13 @@ const LoginAuth0Button = ({ type }) => {
     <button onClick={() => loginWithRedirect()}>
       {type === "google" ? (
         <FcGoogle className="text-[30px]" />
-      ) : (
+      ) : type === "facebook" ? (
         <FaFacebook className="text-[30px] text-blue-500" />
-      )}
+      ) : type === "twitter" ? (
+        <FaTwitter className="text-[30px] text-blue-400" />
+      ) : type === "apple" ? (
+        <FaApple className="text-[30px] text-black" />
+      ) : null}
     </button>
   );
 };
@@ -82,6 +86,8 @@ const SignIn = ({ setModalType, setOpen }) => {
           <div className="w-full flex justify-center items-center gap-3">
             <LoginAuth0Button type="google" />
             <LoginAuth0Button type="facebook" />
+            <LoginAuth0Button type="apple" />
+            <LoginAuth0Button type="twitter" />
           </div>
           {/* <h2 className="text-center my-1 text-[20px] font-bold text-gray3">
             OR
