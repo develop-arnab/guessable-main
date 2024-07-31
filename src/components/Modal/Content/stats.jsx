@@ -6,7 +6,7 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const States = () => {
+const States = ({ open, setOpen }) => {
   const location = useLocation();
   const [questionType, setQuestionType] = useState(
     location.pathname === "/" || location.pathname === "/countries"
@@ -16,8 +16,11 @@ const States = () => {
       : "people"
   );
 
-  const { data: userStats } = useGetUserStatsQuery({ questionType });
-  const { data: userStreakData, status, refetch } = useGetUserStreakQuery();
+  const { data: userStats, refetch } = useGetUserStatsQuery({
+    questionType,
+    userID: localStorage.getItem("userID") ?? "auth"
+  });
+  const { data: userStreakData, status } = useGetUserStreakQuery();
   const [userStreak, setUserStreak] = useState({
     countryStreak: 0,
     movieStreak: 0,
@@ -32,6 +35,17 @@ const States = () => {
     guessDistribution: [0, 0, 0, 0, 0],
     averageScore: "0.00"
   });
+
+  useEffect(() => {
+    console.log("RECALL ");
+    refetch();
+  }, [open]);
+
+  useEffect(() => {
+    if (userStats) {
+      setStats(userStats);
+    }
+  }, [userStats]);
 
   useEffect(() => {
     setQuestionType(
@@ -93,19 +107,19 @@ const States = () => {
     }
   }, [status, userStreakData, questionType]);
 
-  const getLatestStreakFromDB = async () => {
-    const { data } = await refetch();
-    const currentStreak = data?.[`${questionType}Streak`] || 0;
-    setUserStreak((prevStreak) => ({
-      ...prevStreak,
-      [`${questionType}Streak`]: currentStreak
-    }));
-    setStats((prevStats) => ({
-      ...prevStats,
-      currentStreak,
-      maxStreak: data?.maxStreak?.[`${questionType}Streak`] || 0
-    }));
-  };
+  // const getLatestStreakFromDB = async () => {
+  //   const { data } = await refetch();
+  //   const currentStreak = data?.[`${questionType}Streak`] || 0;
+  //   setUserStreak((prevStreak) => ({
+  //     ...prevStreak,
+  //     [`${questionType}Streak`]: currentStreak
+  //   }));
+  //   setStats((prevStats) => ({
+  //     ...prevStats,
+  //     currentStreak,
+  //     maxStreak: data?.maxStreak?.[`${questionType}Streak`] || 0
+  //   }));
+  // };
 
   return (
     <>
@@ -122,40 +136,49 @@ const States = () => {
           <div className="-mb-2 text-[15px]">Played</div>
         </div>
         <div className="flex flex-col justify-center items-center">
-          <div className="text-[20px]">{stats.winPercentage}%</div>
+          <div className="text-[20px]">{stats.winPercentage ?? 0.0}%</div>
           <div className="-mb-2 text-[15px]">Win</div>
         </div>
         <div className="flex flex-col justify-center items-center">
-          <div className="text-[20px]">{stats.currentStreak}</div>
+          <div className="text-[20px]">
+            {stats.currentStreak
+              ? stats.currentStreak
+              : questionType === "movie"
+              ? localStorage.getItem("movieStreak") ?? 0
+              : questionType === "people"
+              ? localStorage.getItem("peopleStreak") ?? 0
+              : localStorage.getItem("countryStreak") ?? 0}
+          </div>
           <div>
             <div className="-mb-2 text-[15px]">Current</div>
             <div className="">Streaks</div>
           </div>
         </div>
-        <div className="flex flex-col justify-center items-center">
+        {/* <div className="flex flex-col justify-center items-center">
           <div className="text-[20px]">{stats.maxStreak}</div>
           <div className="text-center ">
             <div className="-mb-2 text-[15px]">Max</div>
             <div className="">Streaks</div>
           </div>
-        </div>
+        </div> */}
       </div>
       <div className="mt-[10px]">
         <div className="my-[10px] font-poppins text-[15px] font-[600]">
           Guess Distribution
         </div>
-        {stats.guessDistribution.map((el, i) => (
-          <div key={i} className="flex items-start">
-            <div className="w-[30px]">{i + 1}.</div>
-            <Progress
-              percent={el}
-              size={["100%", 14]}
-              strokeColor={el >= 20 ? "#51ab9f" : "#c3505e"}
-              showInfo={false}
-            />
-            <div className="w-[30px]">({el})</div>
-          </div>
-        ))}
+        {stats?.guessDistribution &&
+          Object.entries(stats.guessDistribution).map(([key, value], i) => (
+            <div key={i} className="flex items-start">
+              <div className="w-[60px]">{key}.</div>
+              <Progress
+                percent={parseFloat(value)}
+                size={["100%", 14]}
+                strokeColor={parseFloat(value) >= 20 ? "#51ab9f" : "#c3505e"}
+                showInfo={false}
+              />
+              <div className="w-[60px]">({value})</div>
+            </div>
+          ))}
         <div className="my-[10px] text-center font-poppins text-[15px] font-[600]">
           Your Score: {stats.averageScore} (avg.)
         </div>

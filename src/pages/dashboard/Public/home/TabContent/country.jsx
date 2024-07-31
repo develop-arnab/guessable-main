@@ -39,7 +39,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
 
   const { data, error,status, refetch } = useGetUserStreakQuery();
 
-  console.log("Logged question ", question);
+  // console.log("Logged question ", question);
 
 
 console.log(userStreak);
@@ -114,7 +114,7 @@ useEffect(() => {
         uniqueArray.map((option) => {
           return {
             ...option,
-            disabled: allAnswers.includes(option.value),
+            disabled: allAnswers?.includes(option.value),
             key: Math.random(),
           };
         })) ||
@@ -137,220 +137,74 @@ useEffect(() => {
       const token = !!localStorage.getItem("token");
       if (boolUserSelectedDate) {
         try {
-          let attemptFound = false;
-          for (const attempt of oldQuestionAttempts) {
-            if (attempt.quesID === question?.id) {
-              attemptFound = true;
-
-              const result = await makeOldAttempt({
-                userID: localStorage.getItem("userID"),
-                chooseValue: values.option,
-                questionType: "country",
-                attemptData: {
-                  ...attempt,
-                  attemptValue: attempt.attemptValue
-                }
-              });
-
-              attempt.attemptValue += 1;
-
-              if (result?.data) {
-                console.log("result?.data; ", result?.data);
-                if (result?.data?.isCorrect === false) {
-                  if (result?.data?.clueTwo?.flag) {
-                    setQuestionClues([
-                      ...questionClues,
-                      result?.data?.clueTwo?.flag,
-                    ]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`),
-                      ) || [];
-
-                    previousQuesClue.push(result?.data?.clueTwo?.flag);
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue),
-                    );
-                  } else if (result?.data?.clueThree?.capital) {
-                    setQuestionClues([
-                      ...questionClues,
-                      result?.data?.clueThree?.capital,
-                    ]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`),
-                      ) || [];
-                    previousQuesClue.push(result?.data?.clueThree?.capital);
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue),
-                    );
-                  }
-
-                  if (attempt.attemptValue >= 4) {
-                    console.log("result?.data; ", result?.data);
-                    setCorrectAnswer(result?.data?.answer);
-                    localStorage.setItem(
-                      `correct_Answer-${question?.id}`,
-                      result?.data?.answer,
-                    );
-                    setClueMainAfter(result?.data?.clueMainAfter);
-                    localStorage.setItem(
-                      `clueMainAfter-${question?.id}`,
-                      result?.data?.clueMainAfter,
-                    );
-                    setStreak(calculateStreak("reset"));
-                  }
-                } else {
-                  const updatedArray = [
-                    {
-                      Lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
-                      Long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
-                    },
-                    result?.data?.clueTwo?.flag,
-                    result?.data?.clueThree?.capital,
-                  ];
-                  setQuestionClues(updatedArray);
-                  localStorage.setItem(
-                    `question-${question?.id}-clues`,
-                    JSON.stringify(updatedArray),
-                  );
-                  setCorrectAnswer(result?.data?.answer);
-                  localStorage.setItem(
-                    `correct_Answer-${question?.id}`,
-                    result?.data?.answer,
-                  );
-                  setClueMainAfter(result?.data?.clueMainAfter);
-                  localStorage.setItem(
-                    `clueMainAfter-${question?.id}`,
-                    result?.data?.clueMainAfter,
-                  );
-                  // setStreak(calculateStreak("increament"));
-                  // setIsExploding(true);
-                  setShowConfetti(true)
-                }
-                const answers = JSON.parse(
-                  localStorage.getItem(`answers-${question?.id}`),
-                );
-                const newAnswers =
-                  (Array.isArray(answers) && [...answers]) || [];
-                newAnswers.push(values.option);
-                setAllAnswers([...allAnswers, values.option]);
-                localStorage.setItem(
-                  `answers-${question?.id}`,
-                  JSON.stringify(newAnswers),
-                );
-                Notification(
-                  result.data?.isCorrect
-                    ? "Your guess is correct!"
-                    : "Your guess is incorrect!",
-                  result.data?.isCorrect ? "success" : "error",
-                );
-                refetchStats();
-                resetForm();
-
-                attempt.isCorrect = result.data?.isCorrect;
-                refetchStats();
-                setCurrentAttempt({
-                  ...attempt,
-                  attemptValue: attempt.attemptValue,
-                  isCorrect: result?.data?.isCorrect,
-                });
-              }
-
-              break;
-            }
-          }
-          if (!attemptFound) {
-            const newAttemptObj = {
-              quesID: question?.id,
-              attemptValue: 0,
-              isCorrect: false,
-            };
             const result = await makeOldAttempt({
-              userID: localStorage.getItem("userID"),
+              attemptDataId: question?.attemptsInfo?.id,
+              userID: localStorage.getItem("userID") ?? "auth",
               chooseValue: values.option,
               questionType: "country",
-              attemptData: newAttemptObj
+              // attemptData: newAttemptObj
             });
 
-            newAttemptObj.attemptValue = newAttemptObj.attemptValue + 1;
 
             if (result?.data) {
-              console.log("result?.data; ", result?.data);
+              setAllAnswers([...(allAnswers ?? []), values.option]);
               if (result?.data?.isCorrect === false) {
+                setCurrentAttempt({
+                  quesID: question?.id,
+                  attemptValue: result?.data?.attemptNumber,
+                  isCorrect: result?.data?.isCorrect
+                });
                 if (result?.data?.clueOne?.LatLong) {
-                  setQuestionClues([
-                    {
-                      lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
-                      long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
-                    },
-                  ]);
-                  const previousQuesClue =
-                    JSON.parse(
-                      localStorage.getItem(`question-${question?.id}-clues`),
-                    ) || [];
-                  previousQuesClue.push({
-                    lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
-                    long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
-                  });
-                  localStorage.setItem(
-                    `question-${question?.id}-clues`,
-                    JSON.stringify(previousQuesClue),
-                  );
+                    setQuestionClues([
+                      {
+                        lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
+                        long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
+                      },
+                    ]);
+                }                
+                if (result?.data?.clueTwo?.flag) {
+                    setQuestionClues([
+                      ...questionClues,
+                      result?.data?.clueTwo?.flag
+                    ]);
+                } 
+                else if (result?.data?.clueThree?.capital) {
+                    setQuestionClues([
+                      ...questionClues,
+                      result?.data?.clueThree?.capital
+                    ]);
                 }
+
+                if (result?.data?.answer) {
+                    setCorrectAnswer(result?.data?.answer);
+                    setClueMainAfter(result?.data?.clueMainAfter);
+                  }
               } else {
                 const updatedArray = [
                   {
                     lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
-                    long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
+                    long: JSON.parse(result?.data?.clueOne?.LatLong)?.long
                   },
                   result?.data?.clueTwo?.flag,
-                  result?.data?.clueThree?.capital,
+                  result?.data?.clueThree?.capital
                 ];
                 setQuestionClues(updatedArray);
-                localStorage.setItem(
-                  `question-${question?.id}-clues`,
-                  JSON.stringify(updatedArray),
-                );
                 setCorrectAnswer(result?.data?.answer);
-                localStorage.setItem(
-                  `correct_Answer-${question?.id}`,
-                  result?.data?.answer,
-                );
                 setClueMainAfter(result?.data?.clueMainAfter);
-                localStorage.setItem(
-                  `clueMainAfter-${question?.id}`,
-                  result?.data?.clueMainAfter,
+                setCurrentAttempt({
+                  quesID: question?.id,
+                  attemptValue: result?.data?.attemptNumber,
+                  isCorrect: result?.data?.isCorrect
+                });
+                const filteredAnswers = result?.data?.allResponses.filter(
+                  (element) => element !== null
                 );
-                // setStreak(calculateStreak("increament"));
+                setAllAnswers(filteredAnswers);
                 setShowConfetti(true);
               }
-              const answers = JSON.parse(
-                localStorage.getItem(`answers-${question?.id}`),
-              );
-              const newAnswers = (Array.isArray(answers) && [...answers]) || [];
-              newAnswers.push(values.option);
-              setAllAnswers([...allAnswers, values.option]);
-              localStorage.setItem(
-                `answers-${question?.id}`,
-                JSON.stringify(newAnswers),
-              );
-              Notification(
-                result.data?.isCorrect
-                  ? "Your guess is correct!"
-                  : "Your guess is incorrect!",
-                result.data?.isCorrect ? "success" : "error",
-              );
-              newAttemptObj.isCorrect = result.data?.isCorrect;
-
-              oldQuestionAttempts.push(newAttemptObj);
-              setCurrentAttempt(newAttemptObj);
               refetchStats();
               resetForm();
             }
-          }
 
           localStorage.setItem(
             "oldCountryQuestionAttempts",
@@ -362,146 +216,6 @@ useEffect(() => {
       } else {
         if (!token) {
           try {
-            let attemptFound = false;
-            console.log("ATTEMPTS FOUND ", attempts);
-            for (const attempt of attempts) {
-              console.log("Inside for loop ", attempt);
-              if (attempt.quesID === question?.id) {
-                attemptFound = true;
-
-                const result = await makeAttemptForUnregisteredUser({
-                  userID : localStorage.getItem("userID"),
-                  chooseValue: values.option,
-                  questionType: "country",
-                  attemptData: {
-                    ...attempt,
-                    attemptValue: attempt.attemptValue,
-                  },
-                });
-
-                attempt.attemptValue += 1;
-
-                if (result?.data) {
-                  console.log("result?.data; ", result?.data);
-                  if (result?.data?.isCorrect === false) {
-                    if (result?.data?.clueTwo?.flag) {
-                      setQuestionClues([
-                        ...questionClues,
-                        result?.data?.clueTwo?.flag,
-                      ]);
-                      const previousQuesClue =
-                        JSON.parse(
-                          localStorage.getItem(
-                            `question-${question?.id}-clues`,
-                          ),
-                        ) || [];
-
-                      previousQuesClue.push(result?.data?.clueTwo?.flag);
-                      localStorage.setItem(
-                        `question-${question?.id}-clues`,
-                        JSON.stringify(previousQuesClue),
-                      );
-                    } else if (result?.data?.clueThree?.capital) {
-                      setQuestionClues([
-                        ...questionClues,
-                        result?.data?.clueThree?.capital,
-                      ]);
-                      const previousQuesClue =
-                        JSON.parse(
-                          localStorage.getItem(
-                            `question-${question?.id}-clues`,
-                          ),
-                        ) || [];
-                      previousQuesClue.push(result?.data?.clueThree?.capital);
-                      localStorage.setItem(
-                        `question-${question?.id}-clues`,
-                        JSON.stringify(previousQuesClue),
-                      );
-                    }
-                    
-                    //Perfect
-                    if (attempt.attemptValue >= 4) {
-                      setCorrectAnswer(result?.data?.answer);
-                      console.log(
-                        "result?.data?.clueMainAfter: ",
-                        result?.data?.clueMainAfter,
-                      );
-                      setClueMainAfter(result?.data?.clueMainAfter);
-                      localStorage.setItem(
-                        `correct_Answer-${question?.id}`,
-                        result?.data?.answer,
-                      );
-                      localStorage.setItem(
-                        `clueMainAfter-${question?.id}`,
-                        result?.data?.clueMainAfter,
-                      );
-                       localStorage.setItem(
-                         "lastDatePlayed",question?.date
-                       );
-                      setStreak(calculateStreak("reset"));
-                    }
-                  } else {
-                    const updatedArray = [
-                      {
-                        lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
-                        long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
-                      },
-                      result?.data?.clueTwo?.flag,
-                      result?.data?.clueThree?.capital,
-                    ];
-                    setQuestionClues(updatedArray);
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(updatedArray),
-                    );
-                    setCorrectAnswer(result?.data?.answer);
-                    localStorage.setItem(
-                      `correct_Answer-${question?.id}`,
-                      result?.data?.answer,
-                    );
-                    setClueMainAfter(result?.data?.clueMainAfter);
-                    localStorage.setItem(
-                      `clueMainAfter-${question?.id}`,
-                      result?.data?.clueMainAfter,
-                    );
-                    localStorage.setItem("lastDatePlayed", question?.date);
-                    console.log("CALCULATING FROM HERE ", result.data?.isCorrect);
-                    setStreak(calculateStreak("increament"));
-                    setIsExploding(true);
-                  }
-
-                  const answers = JSON.parse(
-                    localStorage.getItem(`answers-${question?.id}`),
-                  );
-                  const newAnswers =
-                    (Array.isArray(answers) && [...answers]) || [];
-                  newAnswers.push(values.option);
-                  setAllAnswers([...allAnswers, values.option]);
-                  localStorage.setItem(
-                    `answers-${question?.id}`,
-                    JSON.stringify(newAnswers),
-                  );
-                  // Notification(
-                  //   result.data?.isCorrect
-                  //     ? "Your guess is correct!"
-                  //     : "Your guess is incorrect!",
-                  //   result.data?.isCorrect ? "success" : "error",
-                  // );
-                  refetchStats();
-                  resetForm();
-
-                  attempt.isCorrect = result.data?.isCorrect;
-                  setCurrentAttempt({
-                    ...attempt,
-                    attemptValue: attempt.attemptValue,
-                    isCorrect: result?.data?.isCorrect,
-                  });
-                }
-
-                break;
-              }
-            }
-            if (!attemptFound) {
               const newAttemptObj = {
                 quesID: question?.id,
                 attemptValue: 0,
@@ -509,6 +223,7 @@ useEffect(() => {
               };
               const result = await makeAttemptForUnregisteredUser({
                 userID: localStorage.getItem("userID"),
+                attemptDataId: question?.attemptsInfo?.id,
                 chooseValue: values.option,
                 questionType: "country",
                 attemptData: newAttemptObj
@@ -517,81 +232,66 @@ useEffect(() => {
               newAttemptObj.attemptValue = 1;
               console.log("attempt unauth ", result)
               if (result?.data) {
+                setAllAnswers([...(allAnswers ?? []), values.option]);
                 console.log("result?.data; ", result?.data);
-                if (result?.data?.isCorrect === false) {
-                  if (result?.data?.clueOne?.LatLong) {
-                    setQuestionClues([
-                      {
-                        lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
-                        long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
-                      },
-                    ]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`),
-                      ) || [];
-                    previousQuesClue.push({
-                      lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
-                      long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
-                    });
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue),
-                    );
-                  }
-                } else {
-                  const updatedArray = [
+              if (result?.data?.isCorrect === false) {
+                setCurrentAttempt({
+                  quesID: question?.id,
+                  attemptValue: result?.data?.attemptNumber,
+                  isCorrect: result?.data?.isCorrect
+                });
+                if (result?.data?.clueOne?.LatLong) {
+                  setQuestionClues([
                     {
                       lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
-                      long: JSON.parse(result?.data?.clueOne?.LatLong)?.long,
-                    },
-                    result?.data?.clueTwo?.flag,
-                    result?.data?.clueThree?.capital,
-                  ];
-                  setQuestionClues(updatedArray);
-                  localStorage.setItem(
-                    `question-${question?.id}-clues`,
-                    JSON.stringify(updatedArray),
-                  );
-                  setCorrectAnswer(result?.data?.answer);
-                  localStorage.setItem(
-                    `correct_Answer-${question?.id}`,
-                    result?.data?.answer,
-                  );
-                  setClueMainAfter(result?.data?.clueMainAfter);
-                  localStorage.setItem(
-                    `clueMainAfter-${question?.id}`,
-                    result?.data?.clueMainAfter,
-                  );
-                  localStorage.setItem("lastDatePlayed", question?.date);
-                  setStreak(calculateStreak("increament"));
-                  setIsExploding(true);
+                      long: JSON.parse(result?.data?.clueOne?.LatLong)?.long
+                    }
+                  ]);
                 }
-                const answers = JSON.parse(
-                  localStorage.getItem(`answers-${question?.id}`),
+                if (result?.data?.clueTwo?.flag) {
+                  setQuestionClues([
+                    ...questionClues,
+                    result?.data?.clueTwo?.flag
+                  ]);
+                } else if (result?.data?.clueThree?.capital) {
+                  setQuestionClues([
+                    ...questionClues,
+                    result?.data?.clueThree?.capital
+                  ]);
+                }
+                if (result?.data?.answer) {
+                  setCorrectAnswer(result?.data?.answer);
+                  setClueMainAfter(result?.data?.clueMainAfter);
+                   setStreak(calculateStreak("reset"));
+                }
+              } else {
+                const updatedArray = [
+                  {
+                    lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
+                    long: JSON.parse(result?.data?.clueOne?.LatLong)?.long
+                  },
+                  result?.data?.clueTwo?.flag,
+                  result?.data?.clueThree?.capital
+                ];
+                setQuestionClues(updatedArray);
+                setCorrectAnswer(result?.data?.answer);
+                setClueMainAfter(result?.data?.clueMainAfter);
+                setCurrentAttempt({
+                  quesID: question?.id,
+                  attemptValue: result?.data?.attemptNumber,
+                  isCorrect: result?.data?.isCorrect
+                });
+                const filteredAnswers = result?.data?.allResponses.filter(
+                  (element) => element !== null
                 );
-
-                const newAnswers =
-                  (Array.isArray(answers) && [...answers]) || [];
-                newAnswers.push(values.option);
-                setAllAnswers([...allAnswers, values.option]);
-                localStorage.setItem(
-                  `answers-${question?.id}`,
-                  JSON.stringify(newAnswers),
-                );
-                // Notification(
-                //   result.data?.isCorrect
-                //     ? "Your guess is correct!"
-                //     : "Your guess is incorrect!",
-                //   result.data?.isCorrect ? "success" : "error",
-                // );
-                newAttemptObj.isCorrect = result.data?.isCorrect;
-                attempts.push(newAttemptObj);
-                setCurrentAttempt(newAttemptObj);
+                setAllAnswers(filteredAnswers);
+                setShowConfetti(true);
+                setStreak(calculateStreak("increament"));
+              }
                 refetchStats();
                 resetForm();
               }
-            }
+            
 
             localStorage.setItem("countryAttempts", JSON.stringify(attempts));
           } catch (e) {
@@ -614,11 +314,7 @@ useEffect(() => {
               );
               const newAnswers = (Array.isArray(answers) && [...answers]) || [];
               newAnswers.push(values.option);
-              setAllAnswers([...allAnswers, values.option]);
-              localStorage.setItem(
-                `answers-${question?.id}`,
-                JSON.stringify(newAnswers),
-              );
+              setAllAnswers([...(allAnswers ?? []), values.option]);
               Notification(
                 result.data?.isCorrect
                   ? "Your guess is correct!"
@@ -698,19 +394,19 @@ useEffect(() => {
                   getLatestStreakFromDB();
                   setIsExploding(true);
                 }
-                const answers = JSON.parse(
-                  localStorage.getItem(`answers-${question?.id}`),
-                );
-                const newAnswers =
-                  (Array.isArray(answers) && [...answers]) || [];
-                // check if the newAnswers array contains values.option
-                if (!newAnswers.includes(values.option))
-                  newAnswers.push(values.option);
+                // const answers = JSON.parse(
+                //   localStorage.getItem(`answers-${question?.id}`),
+                // );
+                // const newAnswers =
+                //   (Array.isArray(answers) && [...answers]) || [];
+                // // check if the newAnswers array contains values.option
+                // if (!newAnswers.includes(values.option))
+                //   newAnswers.push(values.option);
                 setAllAnswers([...allAnswers, values.option]);
-                localStorage.setItem(
-                  `answers-${question?.id}`,
-                  JSON.stringify(newAnswers),
-                );
+                // localStorage.setItem(
+                //   `answers-${question?.id}`,
+                //   JSON.stringify(newAnswers),
+                // );
                 newAttempt.isCorrect = result.data?.isCorrect;
                 attempts.push(newAttempt);
                 setCurrentAttempt(newAttempt);
@@ -833,25 +529,25 @@ useEffect(() => {
     },
   });
 
-  useEffect(() => {
-    const allClues =
-      JSON.parse(localStorage.getItem(`question-${question?.id}-clues`)) || [];
+  // useEffect(() => {
+  //   const allClues =
+  //     JSON.parse(localStorage.getItem(`question-${question?.id}-clues`)) || [];
 
-    const allAnswers =
-      JSON.parse(localStorage.getItem(`answers-${question?.id}`)) || [];
+  //   const allAnswers =
+  //     JSON.parse(localStorage.getItem(`answers-${question?.id}`)) || [];
 
-    const clueMainAfterLocal =
-      localStorage.getItem(`clueMainAfter-${question?.id}`) || "";
+  //   const clueMainAfterLocal =
+  //     localStorage.getItem(`clueMainAfter-${question?.id}`) || "";
 
-    const correctAnswer = localStorage.getItem(
-      `correct_Answer-${question?.id}`,
-    );
+  //   const correctAnswer = localStorage.getItem(
+  //     `correct_Answer-${question?.id}`,
+  //   );
 
-    setCorrectAnswer(correctAnswer);
-    setQuestionClues(allClues);
-    setAllAnswers(allAnswers);
-    setClueMainAfter(clueMainAfterLocal);
-  }, [question?.id]);
+  //   setCorrectAnswer(correctAnswer);
+  //   setQuestionClues(allClues);
+  //   setAllAnswers(allAnswers);
+  //   setClueMainAfter(clueMainAfterLocal);
+  // }, [question?.id]);
 
     useEffect(() => {
       if (question?.attemptsInfo) {
@@ -864,7 +560,7 @@ useEffect(() => {
           clueThree
         } = question.attemptsInfo;
         console.log(
-          "LOGGED IN QUES ",
+          "YOPPPPPPPPPPP BER KMORO ",
           attemptValue,
           maxAttempts,
           isCorrect,
@@ -877,13 +573,32 @@ useEffect(() => {
           if (clueOne?.LatLong) clues.push(JSON.parse(clueOne?.LatLong));
           if (clueTwo) clues.push(clueTwo.Flag);
           if (clueThree) clues.push(clueThree.Capital);
-          console.log("LOGGED IN allResponses ", question?.allResponses);
+          console.log("YOPPPPPPPPPPP DHUKLAM", question?.allResponses);
           setQuestionClues(clues);
           setCorrectAnswer(
             question?.answer
           );
-          setClueMainAfter(question?.clueMainAfter);
           const filteredAnswers = question?.allResponses.filter(
+            (element) => element !== null
+          );
+          setAllAnswers(filteredAnswers);
+
+          setClueMainAfter(question?.clueMainAfter);
+          setCurrentAttempt({
+            // ...currentAttempt,
+            quesID: question?.id,
+            attemptValue: attemptValue,
+            isCorrect: isCorrect
+          });
+          console.log("YOPPPPPPPPPPP DONE", question?.allResponses);
+        } else {
+          const clues = [];
+          if (clueOne?.LatLong)
+            clues.push(JSON.parse(clueOne?.LatLong));
+          if (clueTwo) clues.push(clueTwo.Flag);
+          if (clueThree) clues.push(clueThree.Capital);
+          setQuestionClues(clues);
+          const filteredAnswers = question?.allResponses?.filter(
             (element) => element !== null
           );
           setAllAnswers(filteredAnswers);
@@ -899,34 +614,34 @@ useEffect(() => {
 
 
   const { values, setFieldValue, handleSubmit } = formik;
-  useEffect(() => {
-    const token = localStorage.getItem("token")
-    const totalAttempts =
-      JSON.parse(localStorage.getItem("countryAttempts")) || [];
-    const attempt = totalAttempts.filter((attempt) => {
-      return attempt.quesID === question?.id;
-    })[0];
-    if(!token) {
-    if (totalAttempts.length > 0 && attempt) {
-      if (attempt) {
-        setCurrentAttempt({
-          ...currentAttempt,
-          attemptValue: attempt?.attemptValue,
-          isCorrect: attempt?.isCorrect
-        });
-      }
-    } else {
-      setCurrentAttempt({
-        quesID: question?.id,
-        attemptValue: 0,
-        isCorrect: false
-      });
-    }
-    }
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token")
+  //   const totalAttempts =
+  //     JSON.parse(localStorage.getItem("countryAttempts")) || [];
+  //   const attempt = totalAttempts.filter((attempt) => {
+  //     return attempt.quesID === question?.id;
+  //   })[0];
+  //   if(!token) {
+  //   if (totalAttempts.length > 0 && attempt) {
+  //     if (attempt) {
+  //       setCurrentAttempt({
+  //         ...currentAttempt,
+  //         attemptValue: attempt?.attemptValue,
+  //         isCorrect: attempt?.isCorrect
+  //       });
+  //     }
+  //   } else {
+  //     setCurrentAttempt({
+  //       quesID: question?.id,
+  //       attemptValue: 0,
+  //       isCorrect: false
+  //     });
+  //   }
+  //   }
 
-    // setStreak(calculateStreak());
-    refetchStats();
-  }, [handleSubmit, question?.id]);
+  //   // setStreak(calculateStreak());
+  //   refetchStats();
+  // }, [handleSubmit, question?.id]);
 
   const handleCopyText = (text) => {
     const url = "https://main.d2bbhsad3oji45.amplifyapp.com/countries";
@@ -1346,7 +1061,7 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
                       </div>
                     </div>
                     <div className="flex justify-center flex-col items-center gap-2 mt-2 px-5">
-                      {allAnswers.map((el, i, arr) => {
+                      {allAnswers?.map((el, i, arr) => {
                         return (
                           <div
                             className="w-[80%] flex justify-between items-center font-poppins mx-3"
@@ -1444,7 +1159,7 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
                   </button>
                 </div>
                 <div className="flex justify-center flex-col items-center gap-2 mt-2 px-5">
-                  {allAnswers.map((el, i) => {
+                  {allAnswers?.map((el, i) => {
                     return (
                       <div
                         className="w-[80%] flex justify-between items-center font-poppins mx-3"
@@ -1459,7 +1174,7 @@ if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isB
                   })}
                 </div>
                 <div className="text-center text-[20px] font-poppins mt-[40px] font-semibold">
-                  {4 - currentAttempt?.attemptValue} Guesses Remaining
+                  {4 - (currentAttempt?.attemptValue || 0)} Guesses Remaining
                 </div>
               </>
             )}

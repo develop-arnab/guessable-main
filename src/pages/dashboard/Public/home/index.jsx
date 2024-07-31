@@ -49,6 +49,8 @@ const Home = () => {
         const uid = new ShortUniqueId({ length: 10 });
         localStorage.setItem("userID", uid.rnd());
       }
+    } else {
+      localStorage.removeItem("userID");
     }
   }, [])
   
@@ -77,7 +79,7 @@ const Home = () => {
     isLoading: loadingForUnAuthUser,
     isFetching: fetchingForUnAuthUser,
   } = useGetQuestionsByUnAuthUserQuery(
-    { questionType },
+    { questionType, userID: localStorage.getItem("userID") },
     {
       skip: isLoggedIn,
       refetchOnMountOrArgChange: true,
@@ -103,7 +105,7 @@ const Home = () => {
     isLoading: loadingUserSelectedDateQuestion,
     isFetching: fetchingUserSelectedDate,
   } = useGetUserSelectedQuestionQuery(
-    { questionType, date: userSelectedDate },
+    { questionType, date: userSelectedDate, userID : localStorage.getItem("userID") ?? "auth" },
     {
       skip: !boolUserSelectedDate,
       refetchOnMountOrArgChange: true,

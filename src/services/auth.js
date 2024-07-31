@@ -31,10 +31,10 @@ export const api = createApi({
       })
     }),
     getQuestionsByUnAuthUser: builder.query({
-      query: (query) => ({
-        url: `getQuestionForUnregisteredUser/${query?.questionType}`,
-        method: "GET"
-      })
+      query: (query) => {
+        return {url: `getQuestionForUnregisteredUser/${query?.questionType}/${query?.userID}`,
+        method: "GET"}
+      }
     }),
     getQuestionsByAuthUser: builder.query({
       query: (query) => ({
@@ -63,7 +63,7 @@ export const api = createApi({
     getUserSelectedQuestion: builder.query({
       query: (query) => {
         return {
-          url: `questionByDate/${query?.questionType}/${query?.date}`,
+          url: `questionByDate/${query?.questionType}/${query?.date}/${query?.userID}`,
           method: "GET"
         };
       }
@@ -100,7 +100,7 @@ export const api = createApi({
     getUserStats: builder.query({
       query: (query) => {
         return {
-          url: `getStats/` + query?.questionType,
+          url: `getStats/` + query?.questionType + "/" + query?.userID,
           method: "GET"
         };
       }

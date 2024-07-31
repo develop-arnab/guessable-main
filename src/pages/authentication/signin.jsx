@@ -76,8 +76,8 @@ const SignIn = ({ setModalType, setOpen }) => {
             WELCOME TO GUESSABLE 👋
           </h2>
           <h2 className="mt-2 text-lightGray leading-2 tracking-tight  text-[12px] font-[400] font-poppins">
-            <span className="font-bold">Benefits of Login:</span> Signup to
-            track your Guessable stats across devices. No spam, I promise!
+            Signup to track your Guessable stats across devices.<br></br>
+            No spam, I promise!
           </h2>
           <div className="w-full flex justify-center items-center gap-3">
             <LoginAuth0Button type="google" />

@@ -152,7 +152,7 @@ const items = [
           />
         )) ||
           (modalType === "faq" && <Faq />) ||
-          (modalType === "stats" && <Stats />) ||
+          (modalType === "stats" && <Stats open={open} setOpen={setOpen} />) ||
           (modalType === "login" && (
             <Login
               modalType={modalType}

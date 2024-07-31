@@ -123,6 +123,33 @@ const Faq = () => {
       )
     }
   ];
+  const faqPeople = [
+    {
+      key: "1",
+      label: "What is People Guesser all about?",
+      children: (
+        <p>
+          It&apos;s a fun trivia game - you have to guess which famous
+          personality is being talked about in the clue. Select your best guess
+          in the dropdown and submit to check whether you got it right.
+        </p>
+      )
+    },
+    {
+      key: "2",
+      label: "Share Feedback",
+      children: (
+        <p>
+          Like Guessable? Don&apos;t like it? Have an idea to make it better?
+          Want to suggest a question? Please write to me at{" "}
+          <a href="mailto:web.belphi@gmail.com" style={{ color: "blue" }}>
+            web.belphi@gmail.com
+          </a>
+        </p>
+      )
+    }
+  ];
+
   return (
     <>
       <div className="text-center font-[700] text-[20px] my-4 font-poppins">
@@ -134,7 +161,9 @@ const Faq = () => {
           localStorage.getItem("current_tab")
             ? localStorage.getItem("current_tab") === "countries"
               ? faqCountry
-              : faqMovie
+              : localStorage.getItem("current_tab") === "movies"
+              ? faqMovie
+              : faqPeople
             : faqCountry
         }
         defaultActiveKey="1"
