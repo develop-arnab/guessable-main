@@ -22,8 +22,6 @@ const LoginAuth0Button = ({ type }) => {
         <FcGoogle className="text-[30px]" />
       ) : type === "facebook" ? (
         <FaFacebook className="text-[30px] text-blue-500" />
-      ) : type === "twitter" ? (
-        <FaTwitter className="text-[30px] text-blue-400" />
       ) : type === "apple" ? (
         <FaApple className="text-[30px] text-black" />
       ) : null}
@@ -87,7 +85,6 @@ const SignIn = ({ setModalType, setOpen }) => {
             <LoginAuth0Button type="google" />
             <LoginAuth0Button type="facebook" />
             <LoginAuth0Button type="apple" />
-            <LoginAuth0Button type="twitter" />
           </div>
           {/* <h2 className="text-center my-1 text-[20px] font-bold text-gray3">
             OR

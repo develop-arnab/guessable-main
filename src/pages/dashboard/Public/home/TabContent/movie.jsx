@@ -197,12 +197,6 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               resetForm();
               refetchStats();
             }
-          
-
-          localStorage.setItem(
-            "oldMovieQuestionAttempts",
-            JSON.stringify(oldQuestionAttempts),
-          );
         } catch (e) {
           console.log("error", e);
         }
@@ -294,172 +288,32 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
             });
 
             if (result?.data) {
-              console.log("if result?.data", result?.data);
-              const answers = JSON.parse(
-                localStorage.getItem(`answers-${question?.id}`),
-              );
-              const newAnswers = (Array.isArray(answers) && [...answers]) || [];
-              newAnswers.push(values.option);
               setAllAnswers([...(allAnswers ?? []), values.option]);
-              localStorage.setItem(
-                `answers-${question?.id}`,
-                JSON.stringify(newAnswers),
-              );
-              Notification(
-                result.data?.isCorrect
-                  ? "Your guess is correct!"
-                  : "Your guess is incorrect!",
-                result.data?.isCorrect ? "success" : "error",
-              );
-
-              const movieAttempt =
-                JSON.parse(localStorage.getItem("movieAttempts")) || [];
-
-              const cloneAttempt = [...movieAttempt];
-              const currentAttempt = cloneAttempt.filter((el) => {
-                return el.quesID === question?.id;
-              });
-              if (cloneAttempt === null || currentAttempt.length === 0) {
-                console.log(
-                  "if(cloneAttempt  null || currentAttempt.length 0)",
-                );
-                const newAttempt = {
-                  quesID: question?.id,
-                  attemptValue: 1,
-                  isCorrect: false,
-                };
-                setCurrentAttempt(newAttempt);
-                cloneAttempt.push(newAttempt);
-
-                localStorage.setItem(
-                  "movieAttempts",
-                  JSON.stringify(cloneAttempt),
-                );
                 if (result?.data?.isCorrect === false) {
-                  console.log("if (result?.data?.isCorrect === false) {");
+                  setCurrentAttempt({
+                    quesID: question?.id,
+                    attemptValue: result?.data?.attemptNumber,
+                    isCorrect: result?.data?.isCorrect
+                  });
                   if (result?.data?.clueOne?.releaseYear) {
-                    console.log("if (result?.data?.clueOne?.releaseYear) {");
-                    setQuestionClues([result?.data?.clueOne?.releaseYear]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`),
-                      ) || [];
-                    previousQuesClue.push(result?.data?.clueOne?.releaseYear);
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue),
-                    );
+                    setQuestionClues([
+                      result?.data?.clueOne?.releaseYear
+                    ]);
                   }
-                } else {
-                  console.log("else isCorrect", result);
-                  const updatedArray = [
-                    result?.data?.clueOne?.releaseYear,
-                    result?.data?.clueTwo?.cast,
-                    result?.data?.clueThree?.director,
-                  ];
-                  setQuestionClues(updatedArray);
-                  localStorage.setItem(
-                    `question-${question?.id}-clues`,
-                    JSON.stringify(updatedArray),
-                  );
-                  setCorrectAnswer(result?.data?.answer);
-                  localStorage.setItem(
-                    `correct_Answer-${question?.id}`,
-                    result?.data?.answer,
-                  );
-                  setClueMainAfter(result?.data?.clueMainAfter);
-                  localStorage.setItem(
-                    `clueMainAfter-${question?.id}`,
-                    result?.data?.clueMainAfter,
-                  );
-                  // setStreak(calculateStreak() + +result.data?.isCorrect);
-                  getLatestStreakFromDB();
-                  setIsExploding(true);
-                }
-                const answers = JSON.parse(
-                  localStorage.getItem(`answers-${question?.id}`),
-                );
-                const newAnswers =
-                  (Array.isArray(answers) && [...answers]) || [];
-                // check if the newAnswers array contains values.option
-                if (!newAnswers.includes(values.option))
-                  newAnswers.push(values.option);
-                setAllAnswers([...allAnswers, values.option]);
-                localStorage.setItem(
-                  `answers-${question?.id}`,
-                  JSON.stringify(newAnswers),
-                );
-                newAttempt.isCorrect = result.data?.isCorrect;
-                attempts.push(newAttempt);
-                setCurrentAttempt(newAttempt);
-                localStorage.setItem("movieAttempts", JSON.stringify(attempts));
-                getLatestStreakFromDB();    
-                resetForm();
-                refetchStats();
-              } else {
-                const updatedAttempts = cloneAttempt.map((attempt) => {
-                  if (attempt && attempt.quesID === question?.id) {
-                    setCurrentAttempt({
-                      quesID: question?.id,
-                      attemptValue: (attempt.attemptValue || 0) + 1,
-                      isCorrect: result?.data?.isCorrect,
-                    });
-                    return {
-                      quesID: question?.id,
-                      attemptValue: (attempt.attemptValue || 0) + 1,
-                      isCorrect: result?.data?.isCorrect,
-                    };
-                  }
-                  return attempt;
-                });
-                localStorage.setItem(
-                  "movieAttempts",
-                  JSON.stringify(updatedAttempts),
-                );
-
-                if (result?.data?.isCorrect === false) {
                   if (result?.data?.clueTwo?.cast) {
                     setQuestionClues([
                       ...questionClues,
                       result?.data?.clueTwo?.cast,
                     ]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`),
-                      ) || [];
-                    previousQuesClue.push(result?.data?.clueTwo?.cast);
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue),
-                    );
                   } else if (result?.data?.clueThree?.director) {
                     setQuestionClues([
                       ...questionClues,
                       result?.data?.clueThree?.director,
                     ]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`),
-                      ) || [];
-                    previousQuesClue.push(result?.data?.clueThree?.director);
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue),
-                    );
                   }
-
                   if (result?.data?.answer) {
                     setCorrectAnswer(result?.data?.answer);
-                    localStorage.setItem(
-                      `correct_Answer-${question?.id}`,
-                      result?.data?.answer,
-                    );
                     setClueMainAfter(result?.data?.clueMainAfter);
-                    localStorage.setItem(
-                      `clueMainAfter-${question?.id}`,
-                      result?.data?.clueMainAfter,
-                    );
-                    // setStreak(calculateStreak("reset"));
                   }
                 } else {
                   const updatedArray = [
@@ -468,29 +322,24 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     result?.data?.clueThree?.director,
                   ];
                   setQuestionClues(updatedArray);
-                  localStorage.setItem(
-                    `question-${question?.id}-clues`,
-                    JSON.stringify(updatedArray),
-                  );
                   setCorrectAnswer(result?.data?.answer);
-                  localStorage.setItem(
-                    `correct_Answer-${question?.id}`,
-                    result?.data?.answer,
+                  setClueMainAfter(result?.data?.clueMainAfter); 
+                  setCurrentAttempt({
+                    quesID: question?.id,
+                    attemptValue: result?.data?.attemptNumber,
+                    isCorrect: result?.data?.isCorrect
+                  });
+                  const filteredAnswers = result?.data?.allResponses.filter(
+                    (element) => element !== null
                   );
-                  setClueMainAfter(result?.data?.clueMainAfter);
-                  localStorage.setItem(
-                    `clueMainAfter-${question?.id}`,
-                    result?.data?.clueMainAfter,
-                  );
-                  // setStreak(calculateStreak() + +result.data?.isCorrect);
-                  
+                  setAllAnswers(filteredAnswers);    
                   setStreak(calculateStreak("increament"));
                   setIsExploding(true);
                 }
                 getLatestStreakFromDB();
                 resetForm();
                 refetchStats();
-              }
+              
             } else {
               Notification("Attempts limit reached", "error");
               resetForm();

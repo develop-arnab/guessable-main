@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 const States = ({ open, setOpen, recallStats }) => {
+  const BREAKPOINT = 700;
   const location = useLocation();
   const [questionType, setQuestionType] = useState(
     location.pathname === "/" || location.pathname === "/countries"
@@ -70,23 +71,24 @@ const States = ({ open, setOpen, recallStats }) => {
           : userStats.winPercentage,
         currentStreak,
         maxStreak,
-        guessDistribution: [
-          isNaN(parseFloat(userStats.guessDistribution["1"]))
-            ? 0
-            : parseFloat(userStats.guessDistribution["1"]),
-          isNaN(parseFloat(userStats.guessDistribution["2"]))
-            ? 0
-            : parseFloat(userStats.guessDistribution["2"]),
-          isNaN(parseFloat(userStats.guessDistribution["3"]))
-            ? 0
-            : parseFloat(userStats.guessDistribution["3"]),
-          isNaN(parseFloat(userStats.guessDistribution["4"]))
-            ? 0
-            : parseFloat(userStats.guessDistribution["4"]),
-          isNaN(parseFloat(userStats.guessDistribution["X"]))
-            ? 0
-            : parseFloat(userStats.guessDistribution["X"])
-        ],
+        // guessDistribution: [
+        //   isNaN(parseFloat(userStats.guessDistribution["1"]))
+        //     ? 0
+        //     : parseFloat(userStats.guessDistribution["1"]),
+        //   isNaN(parseFloat(userStats.guessDistribution["2"]))
+        //     ? 0
+        //     : parseFloat(userStats.guessDistribution["2"]),
+        //   isNaN(parseFloat(userStats.guessDistribution["3"]))
+        //     ? 0
+        //     : parseFloat(userStats.guessDistribution["3"]),
+        //   isNaN(parseFloat(userStats.guessDistribution["4"]))
+        //     ? 0
+        //     : parseFloat(userStats.guessDistribution["4"]),
+        //   isNaN(parseFloat(userStats.guessDistribution["X"]))
+        //     ? 0
+        //     : parseFloat(userStats.guessDistribution["X"])
+        // ],
+        guessDistribution: userStats.guessDistribution,
         averageScore: isNaN(parseFloat(userStats.averageScore))
           ? "0.00"
           : userStats.averageScore
@@ -199,16 +201,31 @@ const States = ({ open, setOpen, recallStats }) => {
               style={{
                 display: "flex",
                 flexDirection: "row",
-                width: "80%",
+                width: window.innerWidth > BREAKPOINT ? "80%" : "100%",
                 justifyContent: "center"
               }}
             >
-              <div style={{ margin: "5px", flex: 1 }}>
-                {key !== "X" ? `Attempt ${key}` : "Incorrect X"}{" "}
+              <div
+                style={{
+                  margin: "5px",
+                  minWidth: "4.375rem",
+                  flex: 1,
+                  color: key === "X" ? "red" : "black"
+                }}
+              >
+                {key !== "X" ? (
+                  `Attempt ${key}`
+                ) : (
+                  <>
+                    <>Wrong </>
+                    {/* <span style={{ margin: "0 6px" }}></span> */}
+                    <> X</>
+                  </>
+                )}
               </div>
               <div
                 style={{
-                  flex: 4,
+                  flex: 3,
                   paddingLeft: "10px",
                   margin: "5px"
                   // backgroundColor: "aqua"

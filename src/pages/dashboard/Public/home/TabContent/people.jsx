@@ -291,175 +291,32 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
             });
 
             if (result?.data) {
-              console.log("result?.data; ", result?.data);
-              const answers = JSON.parse(
-                localStorage.getItem(`answers-${question?.id}`)
-              );
-              const newAnswers = (Array.isArray(answers) && [...answers]) || [];
-              newAnswers.push(values.option);
               setAllAnswers([...(allAnswers ?? []), values.option]);
-              localStorage.setItem(
-                `answers-${question?.id}`,
-                JSON.stringify(newAnswers)
-              );
-              Notification(
-                result.data?.isCorrect
-                  ? "Your guess is correct!"
-                  : "Your guess is incorrect!",
-                result.data?.isCorrect ? "success" : "error"
-              );
-
-              const peopleAttempt =
-                JSON.parse(localStorage.getItem("peopleAttempts")) || [];
-
-              const cloneAttempt = [...peopleAttempt];
-              const currentAttempt = cloneAttempt.filter((el) => {
-                return el.quesID === question?.id;
-              });
-              if (cloneAttempt === null || currentAttempt.length === 0) {
-                const newAttempt = {
-                  quesID: question?.id,
-                  attemptValue: 1,
-                  isCorrect: false
-                };
-                setCurrentAttempt(newAttempt);
-                cloneAttempt.push(newAttempt);
-
-                localStorage.setItem(
-                  "peopleAttempts",
-                  JSON.stringify(cloneAttempt)
-                );
                 if (result?.data?.isCorrect === false) {
-                  console.log("if(result?.data?.isCorrect === false)");
+                  setCurrentAttempt({
+                    quesID: question?.id,
+                    attemptValue: result?.data?.attemptNumber,
+                    isCorrect: result?.data?.isCorrect
+                  });
                   if (result?.data?.clueOne?.nationality) {
-                    console.log("if(result?.data?.clueOne?.nationality)");
-                    setQuestionClues([result?.data?.clueOne?.nationality]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`)
-                      ) || [];
-                    previousQuesClue.push({
-                      lat: result?.data?.clueOne?.nationality,
-                      long: result?.data?.clueOne?.nationality
-                    });
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue)
-                    );
+                    setQuestionClues([
+                      result?.data?.clueOne?.nationality
+                    ]);
                   }
-                } else {
-                  console.log("else isCorrect ", result?.data);
-                  const updatedArray = [
-                    result?.data?.clueOne?.nationality,
-                    result?.data?.clueTwo?.lifespan,
-                    result?.data?.clueThree?.initials
-                  ];
-                  setQuestionClues(updatedArray);
-                  localStorage.setItem(
-                    `question-${question?.id}-clues`,
-                    JSON.stringify(updatedArray)
-                  );
-                  setCorrectAnswer(result?.data?.answer);
-                  localStorage.setItem(
-                    `correct_Answer-${question?.id}`,
-                    result?.data?.answer
-                  );
-                  setClueMainAfter(result?.data?.clueMainAfter);
-                  localStorage.setItem(
-                    `clueMainAfter-${question?.id}`,
-                    result?.data?.clueMainAfter
-                  );
-                  getLatestStreakFromDB();
-                  setIsExploding(true);
-                }
-                const answers = JSON.parse(
-                  localStorage.getItem(`answers-${question?.id}`)
-                );
-                const newAnswers =
-                  (Array.isArray(answers) && [...answers]) || [];
-                // check if the newAnswers array contains values.option
-                if (!newAnswers.includes(values.option))
-                  newAnswers.push(values.option);
-                setAllAnswers([...allAnswers, values.option]);
-                localStorage.setItem(
-                  `answers-${question?.id}`,
-                  JSON.stringify(newAnswers)
-                );
-                newAttempt.isCorrect = result.data?.isCorrect;
-                attempts.push(newAttempt);
-                setCurrentAttempt(newAttempt);
-                localStorage.setItem(
-                  "peopleAttempts",
-                  JSON.stringify(attempts)
-                );
-                getLatestStreakFromDB();
-                refetchStats();
-                resetForm();
-              } else {
-                const updatedAttempts = cloneAttempt.map((attempt) => {
-                  if (attempt && attempt.quesID === question?.id) {
-                    setCurrentAttempt({
-                      quesID: question?.id,
-                      attemptValue: (attempt.attemptValue || 0) + 1,
-                      isCorrect: result?.data?.isCorrect
-                    });
-                    return {
-                      quesID: question?.id,
-                      attemptValue: (attempt.attemptValue || 0) + 1,
-                      isCorrect: result?.data?.isCorrect
-                    };
-                  }
-                  return attempt;
-                });
-                localStorage.setItem(
-                  "peopleAttempts",
-                  JSON.stringify(updatedAttempts)
-                );
-                if (result?.data?.isCorrect === false) {
                   if (result?.data?.clueTwo?.lifespan) {
                     setQuestionClues([
                       ...questionClues,
                       result?.data?.clueTwo?.lifespan
                     ]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`)
-                      ) || [];
-
-                    previousQuesClue.push(result?.data?.clueTwo?.lifespan);
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue)
-                    );
                   } else if (result?.data?.clueThree?.initials) {
                     setQuestionClues([
                       ...questionClues,
                       result?.data?.clueThree?.initials
                     ]);
-                    const previousQuesClue =
-                      JSON.parse(
-                        localStorage.getItem(`question-${question?.id}-clues`)
-                      ) || [];
-                    previousQuesClue.push(result?.data?.clueThree?.initials);
-                    localStorage.setItem(
-                      `question-${question?.id}-clues`,
-                      JSON.stringify(previousQuesClue)
-                    );
                   }
-
                   if (result?.data?.answer) {
                     setCorrectAnswer(result?.data?.answer);
-                    localStorage.setItem(
-                      `correct_Answer-${question?.id}`,
-                      result?.data?.answer
-                    );
-
                     setClueMainAfter(result?.data?.clueMainAfter);
-                    localStorage.setItem(
-                      `clueMainAfter-${question?.id}`,
-                      result?.data?.clueMainAfter
-                    );
-                    // setStreak(calculateStreak("increament"));
                   }
                 } else {
                   const updatedArray = [
@@ -468,27 +325,24 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     result?.data?.clueThree?.initials
                   ];
                   setQuestionClues(updatedArray);
-                  localStorage.setItem(
-                    `question-${question?.id}-clues`,
-                    JSON.stringify(updatedArray)
-                  );
                   setCorrectAnswer(result?.data?.answer);
-                  localStorage.setItem(
-                    `correct_Answer-${question?.id}`,
-                    result?.data?.answer
-                  );
                   setClueMainAfter(result?.data?.clueMainAfter);
-                  localStorage.setItem(
-                    `clueMainAfter-${question?.id}`,
-                    result?.data?.clueMainAfter
+                  setCurrentAttempt({
+                    quesID: question?.id,
+                    attemptValue: result?.data?.attemptNumber,
+                    isCorrect: result?.data?.isCorrect
+                  });
+                  const filteredAnswers = result?.data?.allResponses.filter(
+                    (element) => element !== null
                   );
+                  setAllAnswers(filteredAnswers);
                   setStreak(calculateStreak("increament"));
                   setIsExploding(true);
                 }
                 getLatestStreakFromDB();
                 refetchStats();
                 resetForm();
-              }
+              
             } else {
               Notification("Attempts limit reached", "error");
               refetchStats();
