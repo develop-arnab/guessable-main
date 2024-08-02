@@ -5,9 +5,11 @@ import WelcomePage from "../src/pages/dashboard/Public/home/welcomePage";
 import { useIsLoggedInQuery } from "./services/auth";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function App() {
   const { data, error, isLoading } = useIsLoggedInQuery();
+  const { isAuthenticated, logout } = useAuth0();
 
   useEffect(() => {
     if (data) {
@@ -22,6 +24,7 @@ function App() {
         error.data.message === "Invalid token."
       ) {
         // delete localStorage everywhere and redirect and refresh
+        logout();
         localStorage.clear();
         window.location.reload();
       }
