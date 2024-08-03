@@ -72,21 +72,31 @@ const States = ({ open, setOpen, recallStats }) => {
         currentStreak,
         maxStreak,
         // guessDistribution: [
-        //   isNaN(parseFloat(userStats.guessDistribution["1"]))
+        //   {
+        //     "1" : isNaN(parseFloat(userStats.guessDistribution["1"]))
         //     ? 0
-        //     : parseFloat(userStats.guessDistribution["1"]),
-        //   isNaN(parseFloat(userStats.guessDistribution["2"]))
+        //     : parseFloat(userStats.guessDistribution["1"])
+        //   },
+        //   {
+        //     "2" : isNaN(parseFloat(userStats.guessDistribution["2"]))
         //     ? 0
-        //     : parseFloat(userStats.guessDistribution["2"]),
-        //   isNaN(parseFloat(userStats.guessDistribution["3"]))
+        //     : parseFloat(userStats.guessDistribution["2"])
+        //   },
+        //   {
+        //     "3" : isNaN(parseFloat(userStats.guessDistribution["3"]))
         //     ? 0
-        //     : parseFloat(userStats.guessDistribution["3"]),
-        //   isNaN(parseFloat(userStats.guessDistribution["4"]))
+        //     : parseFloat(userStats.guessDistribution["3"])
+        //   },
+        //   {
+        //     "4" : isNaN(parseFloat(userStats.guessDistribution["4"]))
         //     ? 0
-        //     : parseFloat(userStats.guessDistribution["4"]),
-        //   isNaN(parseFloat(userStats.guessDistribution["X"]))
+        //     : parseFloat(userStats.guessDistribution["4"])
+        //   },
+        //   {
+        //     "X" :isNaN(parseFloat(userStats.guessDistribution["X"]))
         //     ? 0
         //     : parseFloat(userStats.guessDistribution["X"])
+        //   }
         // ],
         guessDistribution: userStats.guessDistribution,
         averageScore: isNaN(parseFloat(userStats.averageScore))
@@ -233,7 +243,7 @@ const States = ({ open, setOpen, recallStats }) => {
                 }}
               >
                 <ProgressBar
-                  completed={parseFloat(value)}
+                  completed={value !== "NaN%" ? parseFloat(value) : 0}
                   // bgColor={parseFloat(value) >= 20 ? "#51ab9f" : "#c3505e"}
                   bgColor={
                     parseFloat(value) >= 90
@@ -271,7 +281,7 @@ const States = ({ open, setOpen, recallStats }) => {
             </div>
           ))}
         <div className="my-[10px] text-center font-poppins text-[15px] font-[600]">
-          Your Score: {stats.averageScore} (avg.)
+          Your Score: {stats.averageScore != "NaN" ? stats.averageScore : 0} (avg.)
         </div>
       </div>
     </>
