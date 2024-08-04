@@ -25,7 +25,7 @@ export const generateRandomDateInRange = () => {
   yesterday.setDate(yesterday.getDate() - 1);
 
   const fifteenDaysBeforeYesterday = new Date(yesterday);
-  fifteenDaysBeforeYesterday.setDate(fifteenDaysBeforeYesterday.getDate() - 15);
+  fifteenDaysBeforeYesterday.setDate(fifteenDaysBeforeYesterday.getDate() - 60);
 
   const randomTime =
     Math.random() * (yesterday.getTime() - fifteenDaysBeforeYesterday.getTime()) +
