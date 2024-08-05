@@ -280,9 +280,9 @@ const States = ({ open, setOpen, recallStats }) => {
               </div> */}
             </div>
           ))}
-        <div className="my-[10px] text-center font-poppins text-[15px] font-[600]">
+        {/* <div className="my-[10px] text-center font-poppins text-[15px] font-[600]">
           Your Score: {stats.averageScore != "NaN" ? stats.averageScore : 0} (avg.)
-        </div>
+        </div> */}
       </div>
     </>
   );
