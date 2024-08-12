@@ -17,6 +17,25 @@ const States = ({ open, setOpen, recallStats }) => {
       : "people"
   );
 
+  function getScreenSize() {
+    return { width: window.innerWidth, height: window.innerHeight };
+  }
+
+   const [screenSize, setScreenSize] = useState(getScreenSize());
+   useEffect(() => {
+     const handleResize = () => {
+       setScreenSize(getScreenSize());
+     };
+
+     window.addEventListener("resize", handleResize);
+
+     // Cleanup function to remove the event listener when the component unmounts
+     return () => {
+       window.removeEventListener("resize", handleResize);
+     };
+   }, []); 
+
+  const [statsBreakPoint , setstatsBreakPoint] = useState("")
   const { data: userStats, refetch } = useGetUserStatsQuery({
     questionType,
     userID: localStorage.getItem("userID") ?? "auth"
@@ -135,6 +154,20 @@ const States = ({ open, setOpen, recallStats }) => {
   //   }));
   // };
 
+const dummyStatsDistribution = {
+  1: "33.33%",
+  2: "10.67%",
+  3: "8.00%",
+  4: "2.00%",
+  X: "1.00%"
+};
+
+const [statsMinBreakPoint, setStatsMinBreakPoint] = useState(10)
+useEffect(() => {
+  if (screenSize.width < 768) {
+    setStatsMinBreakPoint(15);
+  }
+}, [screenSize]);
   return (
     <>
       <div className="text-center font-[600] text-[19px] mt-4 font-poppins">
@@ -218,7 +251,7 @@ const States = ({ open, setOpen, recallStats }) => {
               <div
                 style={{
                   margin: "5px",
-                  minWidth: "4.375rem",
+                  minWidth: "5rem",
                   flex: 1,
                   color: key === "X" ? "red" : "black"
                 }}
@@ -235,38 +268,64 @@ const States = ({ open, setOpen, recallStats }) => {
               </div>
               <div
                 style={{
-                  flex: 3,
+                  flex: 4,
                   paddingLeft: "10px",
                   margin: "5px"
                   // backgroundColor: "aqua"
                   // strokeColor={parseFloat(value) >= 20 ? "#51ab9f" : "#c3505e"}
                 }}
               >
-                <ProgressBar
-                  completed={value !== "NaN%" ? parseFloat(value) : 0}
-                  // bgColor={parseFloat(value) >= 20 ? "#51ab9f" : "#c3505e"}
-                  bgColor={
-                    parseFloat(value) >= 90
-                      ? "#004d00"
-                      : parseFloat(value) >= 80
-                      ? "#006400"
-                      : parseFloat(value) >= 70
-                      ? "#007300"
-                      : parseFloat(value) >= 60
-                      ? "#008000"
-                      : parseFloat(value) >= 50
-                      ? "#669900"
-                      : parseFloat(value) >= 40
-                      ? "#999900"
-                      : parseFloat(value) >= 30
-                      ? "#996600"
-                      : parseFloat(value) >= 20
-                      ? "#994d00"
-                      : parseFloat(value) >= 10
-                      ? "#993300"
-                      : "#990000"
-                  }
-                />
+                <div style={{ position: "relative", width: "100%" }}>
+                  <ProgressBar
+                    completed={value !== "NaN%" ? parseFloat(value) : 0}
+                    customLabel={
+                      parseFloat(value) > statsMinBreakPoint ? (
+                        `${Math.floor(parseFloat(value))}%`
+                      ) : (
+                        <p></p>
+                      )
+                    }
+                    labelSize={10}
+                    bgColor={
+                      parseFloat(value) >= 90
+                        ? "#004d00"
+                        : parseFloat(value) >= 80
+                        ? "#006400"
+                        : parseFloat(value) >= 70
+                        ? "#007300"
+                        : parseFloat(value) >= 60
+                        ? "#008000"
+                        : parseFloat(value) >= 50
+                        ? "#669900"
+                        : parseFloat(value) >= 40
+                        ? "#999900"
+                        : parseFloat(value) >= 30
+                        ? "#996600"
+                        : parseFloat(value) >= 20
+                        ? "#994d00"
+                        : parseFloat(value) >= 10
+                        ? "#993300"
+                        : "#990000"
+                    }
+                  />
+                  {parseFloat(value) <= statsMinBreakPoint &&
+                    parseFloat(value) > 0 && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          // left: "calc(10% + 5px)", // Placing it outside the filled area
+                          left: `calc(${parseFloat(value)}%)`, // Dynamically position based on the value
+                          marginLeft: "5px", // Margin from the rendered progress
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          fontSize: "12px",
+                          color: "#990000"
+                        }}
+                      >
+                        <strong>{`${Math.floor(parseFloat(value))}%`}</strong>
+                      </span>
+                    )}
+                </div>
               </div>
               {/* <div
                 style={{
