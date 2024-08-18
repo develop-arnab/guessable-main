@@ -247,11 +247,16 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     ]);
                   }
                   if (result?.data?.answer) {
+                    localStorage.setItem(
+                      "lastDatePlayed-people",
+                      question?.date
+                    );
                     setCorrectAnswer(result?.data?.answer);
                     setClueMainAfter(result?.data?.clueMainAfter);
                     setStreak(calculateStreak("reset"));
                   }
                 } else {
+                  localStorage.setItem("lastDatePlayed-people", question?.date);
                   const updatedArray = [
                     result?.data?.clueOne?.nationality,
                     result?.data?.clueTwo?.lifespan,
@@ -476,7 +481,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
     console.log("USER Streak FOUND ", userStreak);
     const currentDateFoundInQuestion = question?.date;
 
-    const lastDatePlayedRetrieved = localStorage.getItem("lastDatePlayed");
+    const lastDatePlayedRetrieved = localStorage.getItem("lastDatePlayed-people");
 
     if (
       lastDatePlayedRetrieved &&
@@ -494,60 +499,15 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
     if (token) {
       return userStreak?.peopleStreak === null ? 0 : userStreak?.peopleStreak;
     } else {
-      // const attemptsKey = `peopleAttempts`;
-      // const attempts = JSON.parse(localStorage.getItem(attemptsKey)) || [];
-
-      // attempts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      // let streak = 0;
-      // let previousDay = null;
-
-      // for (const attempt of attempts) {
-      //   const attemptDate = new Date(attempt.createdAt);
-      //   const attemptDay = new Date(
-      //     attemptDate.getFullYear(),
-      //     attemptDate.getMonth(),
-      //     attemptDate.getDate(),
-      //   );
-
-      //   if (previousDay !== null) {
-      //     const dayDiff = (previousDay - attemptDay) / (1000 * 60 * 60 * 24);
-
-      //     if (dayDiff > 1) break;
-      //     if (dayDiff === 0) continue;
-      //   }
-
-      //   // const today = new Date();
-      //   const today = new Date("2024-07-12T00:00:00.000Z");
-      //   console.log(today)
-      //   const todayDate = new Date(
-      //     today.getFullYear(),
-      //     today.getMonth(),
-      //     today.getDate(),
-      //   );
-      //   if (streak === 0) {
-      //     const dayDiffFromToday =
-      //       (todayDate - attemptDay) / (1000 * 60 * 60 * 24);
-      //     if (dayDiffFromToday > 1) continue;
-      //   }
-      //   console.log("Calculated Attempts : ", attempt, "streak : ", streak);
-      //   if (attempt.isCorrect) {
-      //     console.log("Correct Attempt : ", attempt, "streak : ", streak);
-      //     streak++;
-      //     previousDay = attemptDay;
-      //   } else {
-      //     break;
-      //   }
-      // }
       const currentDateFoundInQuestion = question?.date;
 
       const lastDatePlayedRetrieved =
-        localStorage.getItem("lastDatePlayed") || currentDateFoundInQuestion;
+        localStorage.getItem("lastDatePlayed-people") || currentDateFoundInQuestion;
       console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion);
 
-      let streak = localStorage.getItem("peopleStreak") || 0;
-
-      console.log("Ran", gameState);
+      let peopleStreak = localStorage.getItem("peopleStreak") || 0;
+      console.log("peopleStreak ", peopleStreak);
+      console.log("gameState ", gameState);
 
       if (
         moment(currentDateFoundInQuestion).isSame(
@@ -555,16 +515,16 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
         )
       ) {
         if (gameState === "reset") {
-          streak = 0;
+          peopleStreak = 0;
           setLostStreak(true);
         } else if (gameState === "increament") {
-          streak++;
+          peopleStreak++;
           setIsExploding(true);
         }
       }
-      console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion, streak);
-      localStorage.setItem("peopleStreak", streak);
-      return streak;
+      console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion, peopleStreak);
+      localStorage.setItem("peopleStreak", peopleStreak);
+      return peopleStreak;
     }
   }
   const defaultOptions = {

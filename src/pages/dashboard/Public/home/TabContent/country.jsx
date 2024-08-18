@@ -259,11 +259,16 @@ useEffect(() => {
                   ]);
                 }
                 if (result?.data?.answer) {
+                  localStorage.setItem(
+                    "lastDatePlayed-country",
+                    question?.date
+                  );
                   setCorrectAnswer(result?.data?.answer);
                   setClueMainAfter(result?.data?.clueMainAfter);
                    setStreak(calculateStreak("reset"));
                 }
               } else {
+              localStorage.setItem("lastDatePlayed-country", question?.date);
                 const updatedArray = [
                   {
                     lat: JSON.parse(result?.data?.clueOne?.LatLong)?.lat,
@@ -502,77 +507,28 @@ useEffect(() => {
 
 useEffect(() => {
   console.log("USER Streak FOUND ", userStreak);
-const currentDateFoundInQuestion = question?.date;
+  const currentDateFoundInQuestion = question?.date;
 
-const lastDatePlayedRetrieved =
-  localStorage.getItem("lastDatePlayed");
+  const lastDatePlayedRetrieved =
+    localStorage.getItem("lastDatePlayed-country");
 
-if(lastDatePlayedRetrieved && (moment(lastDatePlayedRetrieved).add(1,"days").isBefore(currentDateFoundInQuestion))){
-  setStreak(0)
-  localStorage.setItem("countryStreak", 0);
-}
+  if(lastDatePlayedRetrieved 
+    && (moment(lastDatePlayedRetrieved).add(1,"days").isBefore(currentDateFoundInQuestion))){
+    setStreak(0)
+    localStorage.setItem("countryStreak", 0);
+  }
 }, [user])
 
 
   let token = localStorage.getItem("token");
   function calculateStreak(gameState) {
-      
     if (token) {
       return userStreak?.countryStreak === null ? 0 : userStreak?.countryStreak;
     } else {
-
-
-   
-      // const attemptsKey = `countryAttempts`;
-      // const attempts = JSON.parse(localStorage.getItem(attemptsKey)) || [];
-
-      // attempts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      // let streak = 0;
-      // let previousDay = null;
-
-      // for (const attempt of attempts) {
-      //   const attemptDate = new Date(attempt.createdAt);
-      //   const attemptDay = new Date(
-      //     attemptDate.getFullYear(),
-      //     attemptDate.getMonth(),
-      //     attemptDate.getDate(),
-      //   );
-
-      //   if (previousDay !== null) {
-      //     const dayDiff = (previousDay - attemptDay) / (1000 * 60 * 60 * 24);
-
-      //     if (dayDiff > 1) break;
-      //     if (dayDiff === 0) continue;
-      //   }
-
-      //   // const today = new Date();
-      //   const today = new Date("2024-07-12T00:00:00.000Z");
-      //   console.log(today)
-      //   const todayDate = new Date(
-      //     today.getFullYear(),
-      //     today.getMonth(),
-      //     today.getDate(),
-      //   );
-      //   if (streak === 0) {
-      //     const dayDiffFromToday =
-      //       (todayDate - attemptDay) / (1000 * 60 * 60 * 24);
-      //     if (dayDiffFromToday > 1) continue;
-      //   }
-      //   console.log("Calculated Attempts : ", attempt, "streak : ", streak);
-      //   if (attempt.isCorrect) {
-      //     console.log("Correct Attempt : ", attempt, "streak : ", streak);
-      //     streak++;
-      //     previousDay = attemptDay;
-      //   } else {
-      //     break;
-      //   }
-      // }
-   const currentDateFoundInQuestion = question?.date;
- 
+      const currentDateFoundInQuestion = question?.date;
       const lastDatePlayedRetrieved =
-        localStorage.getItem("lastDatePlayed") || currentDateFoundInQuestion;
-   console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion);
+      localStorage.getItem("lastDatePlayed-country") || currentDateFoundInQuestion;
+      console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion);
 
       let streak = localStorage.getItem("countryStreak") || 0;
 

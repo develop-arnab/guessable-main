@@ -243,11 +243,13 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                    ]);
                  }
                  if (result?.data?.answer) {
+                  localStorage.setItem("lastDatePlayed-movie", question?.date);
                    setCorrectAnswer(result?.data?.answer);
                    setClueMainAfter(result?.data?.clueMainAfter);
                    setStreak(calculateStreak("reset"));
                  }
                } else {
+                  localStorage.setItem("lastDatePlayed-movie", question?.date);
                  const updatedArray = [
                    result?.data?.clueOne?.releaseYear,
                    result?.data?.clueTwo?.cast,
@@ -470,6 +472,24 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
       Notification("You have Coppied text successfully!");
     });
   };
+
+  useEffect(() => {
+    console.log("USER Streak FOUND ", userStreak);
+    const currentDateFoundInQuestion = question?.date;
+
+    const lastDatePlayedRetrieved = localStorage.getItem("lastDatePlayed-movie");
+
+    if (
+      lastDatePlayedRetrieved &&
+      moment(lastDatePlayedRetrieved)
+        .add(1, "days")
+        .isBefore(currentDateFoundInQuestion)
+    ) {
+      setStreak(0);
+      localStorage.setItem("movieStreak", 0);
+    }
+  }, [user]);
+
   let token = localStorage.getItem("token");
   function calculateStreak(gameState) {
     const token = localStorage.getItem("token");
@@ -478,7 +498,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
     } else {
       const currentDateFoundInQuestion = question?.date;
       const lastDatePlayedRetrieved =
-        localStorage.getItem("lastDatePlayed") || currentDateFoundInQuestion;
+        localStorage.getItem("lastDatePlayed-movie") || currentDateFoundInQuestion;
       console.log(lastDatePlayedRetrieved, currentDateFoundInQuestion);
       let streak = localStorage.getItem("movieStreak") || 0;
       console.log("Ran", gameState);
@@ -500,51 +520,6 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
       localStorage.setItem("movieStreak", streak);
       return streak;
     }
-    // const attemptsKey = `movieAttempts`;
-    // const attempts = JSON.parse(localStorage.getItem(attemptsKey)) || [];
-
-    // attempts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    // let streak = 0;
-    // let previousDay = null;
-
-    // for (const attempt of attempts) {
-    //   const attemptDate = new Date(attempt.createdAt);
-    //   const attemptDay = new Date(
-    //     attemptDate.getFullYear(),
-    //     attemptDate.getMonth(),
-    //     attemptDate.getDate(),
-    //   );
-
-    //   if (previousDay !== null) {
-    //     const dayDiff = (previousDay - attemptDay) / (1000 * 60 * 60 * 24);
-
-    //     if (dayDiff > 1) break;
-    //     if (dayDiff === 0) continue;
-    //   }
-
-    //   const today = new Date();
-    //   const todayDate = new Date(
-    //     today.getFullYear(),
-    //     today.getMonth(),
-    //     today.getDate(),
-    //   );
-    //   if (streak === 0) {
-    //     const dayDiffFromToday =
-    //       (todayDate - attemptDay) / (1000 * 60 * 60 * 24);
-    //     if (dayDiffFromToday > 1) continue;
-    //   }
-
-    //   if (attempt.isCorrect) {
-    //     streak++;
-    //     previousDay = attemptDay;
-    //   } else {
-    //     break;
-    //   }
-    // }
-    // localStorage.setItem("movieStreak", JSON.stringify(streak));
-    // return streak;
-    // }
   }
   const defaultOptions = {
     loop: true,
