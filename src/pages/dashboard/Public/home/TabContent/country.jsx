@@ -499,7 +499,7 @@ useEffect(() => {
   // }, [handleSubmit, question?.id]);
 
   const handleCopyText = (text) => {
-    const url = "https://main.d2bbhsad3oji45.amplifyapp.com/countries";
+    const url = "https://guessable.in/countries";
     copy(`${text} ${url}`).then(() => {
       Notification("You have Coppied text successfully!");
     });

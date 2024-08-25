@@ -467,7 +467,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   // }, [handleSubmit, question?.id]);
 
   const handleCopyText = (text) => {
-    const url = "https://main.d2bbhsad3oji45.amplifyapp.com/movies";
+    const url = "https://guessable.in/movies";
     copy(`${text} ${url}`).then(() => {
       Notification("You have Coppied text successfully!");
     });

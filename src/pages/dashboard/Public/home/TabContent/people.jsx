@@ -471,7 +471,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   // }, [handleSubmit, question?.id]);
 
   const handleCopyText = (text) => {
-    const url = "https://main.d2bbhsad3oji45.amplifyapp.com/people";
+    const url = "https://guessable.in/people";
     copy(`${text} ${url}`).then(() => {
       Notification("You have Coppied text successfully!");
     });
@@ -877,7 +877,7 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   onClick={() =>
                     currentAttempt?.isCorrect
                       ? handleCopyText(
-                          `I got today’s Country Guesser in ${
+                          `I got today’s People Guesser in ${
                             currentAttempt?.attemptValue
                           } ${
                             currentAttempt?.attemptValue === 1
