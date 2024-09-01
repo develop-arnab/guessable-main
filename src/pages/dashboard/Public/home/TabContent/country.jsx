@@ -680,10 +680,7 @@ useEffect(() => {
             </div>
             {question?.clueImage && (
               <div className="mt-5 w-[95%] overflow-auto rounded-md mx-3 flex justify-center items-center">
-                <img
-                  src={`${import.meta.env.VITE_API_URL}/${question?.clueImage}`}
-                  alt=""
-                />
+                <img src={`${question?.clueImage}`} alt="" />
               </div>
             )}
 
