@@ -570,6 +570,20 @@ useEffect(() => {
           preserveAspectRatio: "xMidYMid slice"
         }
       };
+        const renderTextWithLineBreaks = (text) => {
+          // Check if the text includes an HTML-like <br> tag
+          if (text.includes("<br>")) {
+            return <div dangerouslySetInnerHTML={{ __html: text }} />;
+          } else {
+            // Split the text by newlines and render using <br /> tags
+            return text.split("\n").map((line, index) => (
+              <span key={index}>
+                {line}
+                <br />
+              </span>
+            ));
+          }
+        };
   return (
     <>
       {showConfetti && (
@@ -673,10 +687,15 @@ useEffect(() => {
             <div className="text-center text-[20px] font-[700] mt-4 font-poppins">
               Guess the country based on this clue
             </div>
-            <div className="text-justify px-[5%] font-poppins mt-3">
+            {/* <div className="text-justify px-[5%] font-poppins mt-3">
               {currentAttempt?.isCorrect || currentAttempt?.attemptValue >= 4
                 ? clueMainAfter
                 : question?.clueMainBefore}
+            </div> */}
+            <div className="text-justify px-[5%] font-poppins mt-3">
+              {currentAttempt?.isCorrect || currentAttempt?.attemptValue >= 4
+                ? renderTextWithLineBreaks(clueMainAfter)
+                : renderTextWithLineBreaks(question?.clueMainBefore)}
             </div>
             {question?.clueImage && (
               <div className="mt-5 w-[95%] overflow-auto rounded-md mx-3 flex justify-center items-center">
