@@ -399,8 +399,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
           if (isCorrect || attemptValue >= maxAttempts) {
             const clues = [];
             if (clueOne) clues.push(clueOne.Year);
-            if (clueTwo) clues.push(clueTwo.Director);
-            if (clueThree) clues.push(clueThree.Cast);
+            if (clueTwo) clues.push(clueTwo.Cast);
+            if (clueThree) clues.push(clueThree.Director);
             console.log("LOGGED IN allResponses ", question?.allResponses);
             setQuestionClues(clues);
             setCorrectAnswer(question?.answer);
@@ -418,8 +418,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
           } else {
             const clues = [];
             if (clueOne) clues.push(clueOne.Year);
-            if (clueTwo) clues.push(clueTwo.Director);
-            if (clueThree) clues.push(clueThree.Cast);
+            if (clueTwo) clues.push(clueTwo.Cast);
+            if (clueThree) clues.push(clueThree.Director);
             setQuestionClues(clues);
             const filteredAnswers = question?.allResponses?.filter(
               (element) => element !== null
