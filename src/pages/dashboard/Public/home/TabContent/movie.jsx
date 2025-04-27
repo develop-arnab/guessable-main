@@ -158,16 +158,16 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               if (result?.data?.clueOne?.releaseYear) {
                   setQuestionClues([result?.data?.clueOne?.releaseYear]);
                 }
-              if (result?.data?.clueTwo?.cast) {
+              if (result?.data?.clueTwo?.director) {
                   setQuestionClues([
                     ...questionClues,
-                    result?.data?.clueTwo?.cast
+                    result?.data?.clueTwo?.director
                   ]);
                   
-                } else if (result?.data?.clueThree?.director) {
+                } else if (result?.data?.clueThree?.cast) {
                   setQuestionClues([
                     ...questionClues,
-                    result?.data?.clueThree?.director
+                    result?.data?.clueThree?.cast
                   ]);
                 }
                 if (result?.data?.answer) {
@@ -177,8 +177,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
               } else {
                 const updatedArray = [
                   result?.data?.clueOne?.releaseYear,
-                  result?.data?.clueTwo?.cast,
-                  result?.data?.clueThree?.director,
+                  result?.data?.clueTwo?.director,
+                  result?.data?.clueThree?.cast,
                 ];
                 setQuestionClues(updatedArray);
 
@@ -232,15 +232,15 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                  if (result?.data?.clueOne?.releaseYear) {
                    setQuestionClues([result?.data?.clueOne?.releaseYear]);
                  }
-                 if (result?.data?.clueTwo?.cast) {
+                 if (result?.data?.clueTwo?.director) {
                    setQuestionClues([
                      ...questionClues,
-                     result?.data?.clueTwo?.cast
+                     result?.data?.clueTwo?.director
                    ]);
-                 } else if (result?.data?.clueThree?.director) {
+                 } else if (result?.data?.clueThree?.cast) {
                    setQuestionClues([
                      ...questionClues,
-                     result?.data?.clueThree?.director
+                     result?.data?.clueThree?.cast
                    ]);
                  }
                  if (result?.data?.answer) {
@@ -253,8 +253,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                   localStorage.setItem("lastDatePlayed-movie", question?.date);
                  const updatedArray = [
                    result?.data?.clueOne?.releaseYear,
-                   result?.data?.clueTwo?.cast,
-                   result?.data?.clueThree?.director
+                   result?.data?.clueTwo?.director,
+                   result?.data?.clueThree?.cast
                  ];
                  setQuestionClues(updatedArray);
 
@@ -303,15 +303,15 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                       result?.data?.clueOne?.releaseYear
                     ]);
                   }
-                  if (result?.data?.clueTwo?.cast) {
+                  if (result?.data?.clueTwo?.director) {
                     setQuestionClues([
                       ...questionClues,
-                      result?.data?.clueTwo?.cast,
+                      result?.data?.clueTwo?.director,
                     ]);
-                  } else if (result?.data?.clueThree?.director) {
+                  } else if (result?.data?.clueThree?.cast) {
                     setQuestionClues([
                       ...questionClues,
-                      result?.data?.clueThree?.director,
+                      result?.data?.clueThree?.cast,
                     ]);
                   }
                   if (result?.data?.answer) {
@@ -321,8 +321,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                 } else {
                   const updatedArray = [
                     result?.data?.clueOne?.releaseYear,
-                    result?.data?.clueTwo?.cast,
-                    result?.data?.clueThree?.director,
+                    result?.data?.clueTwo?.director,
+                    result?.data?.clueThree?.cast,
                   ];
                   setQuestionClues(updatedArray);
                   setCorrectAnswer(result?.data?.answer);
@@ -403,8 +403,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
           if (isCorrect || attemptValue >= maxAttempts) {
             const clues = [];
             if (clueOne) clues.push(clueOne.Year);
-            if (clueTwo) clues.push(clueTwo.Cast);
-            if (clueThree) clues.push(clueThree.Director);
+            if (clueTwo) clues.push(clueTwo.Director);
+            if (clueThree) clues.push(clueThree.Cast);
             console.log("LOGGED IN allResponses ", question?.allResponses);
             setQuestionClues(clues);
             setCorrectAnswer(question?.answer);
@@ -422,8 +422,8 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
           } else {
             const clues = [];
             if (clueOne) clues.push(clueOne.Year);
-            if (clueTwo) clues.push(clueTwo.Cast);
-            if (clueThree) clues.push(clueThree.Director);
+            if (clueTwo) clues.push(clueTwo.Director);
+            if (clueThree) clues.push(clueThree.Cast);
             setQuestionClues(clues);
             const filteredAnswers = question?.allResponses?.filter(
               (element) => element !== null
@@ -739,12 +739,12 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                     ) : (
                       <div>
                         <div>{questionClues?.[1]}</div>
-                        <div>Cast</div>
+                        <div>Director</div>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div>Cast</div>
+                  <div>Director</div>
                 )}
               </button>
               <button
@@ -758,10 +758,10 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                 currentAttempt?.isCorrect ? (
                   <div>
                     <div>{questionClues?.[2]}</div>
-                    <div>Director</div>
+                    <div>Cast</div>
                   </div>
                 ) : (
-                  <div>Director</div>
+                  <div>Cast</div>
                 )}
               </button>
             </div>
