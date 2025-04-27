@@ -1,35 +1,35 @@
+// CustomSelect.jsx
+import React from "react";
 import { Select } from "antd";
 import PropTypes from "prop-types";
+import "./CustomSelect.css";      // ① import your overrides
 
-const AntdSelect = ({ options, className, value, handleChange }) => {
-  return (
-    <Select
-      showSearch
-      value={value}
-      className={className}
-      placeholder="Search to Select"
-      optionFilterProp="children"
-      filterOption={(input, option) =>
-        (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())
-      }
-      filterSort={(optionA, optionB) =>
-        (optionA?.label ?? "")
-          .toLowerCase()
-          .localeCompare((optionB?.label ?? "").toLowerCase())
-      }
-      onChange={handleChange}
-      options={options}
-      size="large"
-    />
-  );
-};
+const CustomSelect = ({ options, className, value, handleChange }) => (
+  <Select
+    showSearch
+    value={value}
+    className={className}
+    placeholder="Search to Select"
+    optionFilterProp="children"
+    filterOption={(input, option) =>
+      (option?.label.toLowerCase() ?? "").includes(input.toLowerCase())
+    }
+    filterSort={(a, b) =>
+      (a?.label ?? "").toLowerCase().localeCompare((b?.label ?? "").toLowerCase())
+    }
+    onChange={handleChange}
+    options={options}
+    size="large"
+    dropdownClassName="multiline-dropdown"    // ② tag the popup
+  />
+);
 
-export default AntdSelect;
-
-AntdSelect.propTypes = {
+CustomSelect.propTypes = {
   style: PropTypes.object,
   handleChange: PropTypes.func,
   options: PropTypes.array,
   className: PropTypes.string,
   value: PropTypes.string,
 };
+
+export default CustomSelect;

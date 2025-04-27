@@ -1,0 +1,15 @@
+.multiline-dropdown .ant-select-item-option-content {
+    /* allow text to wrap on spaces or break words */
+    white-space: normal !important;
+    word-break: break-word !important;
+  
+    /* let the item grow vertically */
+    height: auto !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* optional: give a bit of vertical padding so wrapped lines don’t look cramped */
+  .multiline-dropdown .ant-select-item-option {
+    padding-top: 0.4em !important;
+    padding-bottom: 0.4em !important;
+  }

@@ -62,6 +62,7 @@ console.log(userStreak);
   const [questionClues, setQuestionClues] = useState([]);
   const [option, setOption] = useState([]);
   const [correctAnswer, setCorrectAnswer] = useState("");
+  const [wikiLink, setWikiLink] = useState("");
   const [clueMainAfter, setClueMainAfter] = useState("");
   const [streak, setStreak] = useState(localStorage.getItem('countryStreak') || 0);
   const [questionStats, setQuestionStats] = useState([0, 0, 0, 0]);
@@ -405,6 +406,9 @@ useEffect(() => {
   // }, [question?.id]);
 
     useEffect(() => {
+      if (question?.wikiLink) {
+        setWikiLink(question?.wikiLink);
+      }
       if (question?.attemptsInfo) {
         const {
           attemptValue,
@@ -835,6 +839,16 @@ useEffect(() => {
                 <div className="text-[20px] mt-[10px] font-poppins  font-semibold">
                   {correctAnswer}
                 </div>
+                <p>
+                <a 
+                  href={wikiLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ color: 'blue', textDecoration: 'underline' }}
+                >
+                  (Learn More)
+                </a>
+              </p>
                 <div className="flex  justify-center items-center mt-[10px]">
                   <div className="flex gap-2">
                     <div

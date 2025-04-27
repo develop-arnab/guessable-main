@@ -27,6 +27,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   const [initialValues] = useState({ option: "" });
+  const [wikiLink, setWikiLink] = useState("");
   const [isExploding, setIsExploding] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [makeAttemptForUnregisteredUser, { isLoading: loadingUnAth }] =
@@ -378,6 +379,9 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   // }, [question?.id]);
 
       useEffect(() => {
+        if (question?.imdbLink) {
+          setWikiLink(question?.imdbLink);
+        }
         if (question?.attemptsInfo) {
           const {
             attemptValue,
@@ -771,6 +775,16 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
                 <div className="text-[20px] mt-[10px] font-poppins  font-semibold">
                   {correctAnswer}
                 </div>
+                <p>
+                <a 
+                  href={wikiLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ color: 'blue', textDecoration: 'underline' }}
+                >
+                  (Learn More)
+                </a>
+              </p>
                 <div className="flex  justify-center items-center mt-[10px]">
                   <div className="flex gap-2">
                     <div
