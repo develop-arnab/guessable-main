@@ -24,8 +24,11 @@ import fire from "../../../../../../public/assets/Fire.json";
 import lose from "../../../../../../public/assets/lose.json";
 import moment from "moment";
 import { useAuth0 } from "@auth0/auth0-react";
-
+import { Helmet } from "react-helmet";
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
+  const metaTitle = "Movie Quiz - Guess the Movie | Daily Challenge";
+  const metaDescription =
+    "Join the Movie Quiz and guess the Hollywood movie based on clues! Test your knowledge with our daily challenge and see how you rank on the leaderboard.";
   const [initialValues] = useState({ option: "" });
   const [wikiLink, setWikiLink] = useState("");
   const [isExploding, setIsExploding] = useState(false);
@@ -558,6 +561,21 @@ const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
   };
   return (
     <>
+      <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content="Country Quiz, Guess the Country, Daily Challenge, Quiz Game, Geography Quiz" />
+        <meta name="author" content="Guessable" />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://guessable.in/movies" />
+        {/* <meta property="og:image" content="https://guessable.in/assets/country-quiz-thumbnail.jpg" /> */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        {/* <meta name="twitter:image" content="https://guessable.in/assets/country-quiz-thumbnail.jpg" /> */}
+      </Helmet>
       {showConfetti && (
         <div
           style={{

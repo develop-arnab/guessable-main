@@ -24,8 +24,12 @@ import ConfettiExplosion from 'react-confetti-explosion';
 import Lottie from "react-lottie";
 import fire from "../../../../../../public/assets/Fire.json";
 import lose from "../../../../../../public/assets/lose.json";
+import { Helmet } from "react-helmet";
 
 const TabContent = ({ question, boolUserSelectedDate, isLoading }) => {
+  const metaTitle = "Country Quiz - Guess the Country | Daily Challenge";
+  const metaDescription =
+    "Join the Country Quiz and guess the country based on clues! Test your knowledge with our daily challenge and see how you rank on the leaderboard.";
   const [isExploding, setIsExploding] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [initialValues] = useState({ option: "" });
@@ -590,6 +594,21 @@ useEffect(() => {
         };
   return (
     <>
+     <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content="Country Quiz, Guess the Country, Daily Challenge, Quiz Game, Geography Quiz" />
+        <meta name="author" content="Guessable" />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://guessable.in/countries" />
+        {/* <meta property="og:image" content="https://guessable.in/assets/country-quiz-thumbnail.jpg" /> */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        {/* <meta name="twitter:image" content="https://guessable.in/assets/country-quiz-thumbnail.jpg" /> */}
+      </Helmet>
       {showConfetti && (
         <div
           style={{
